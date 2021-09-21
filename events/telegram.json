@@ -1,0 +1,59 @@
+{
+  "resource": "/process-updates",
+  "path": "/process-updates/",
+  "httpMethod": "POST",
+  "headers": {
+    "Accept-Encoding": "gzip, deflate",
+    "Content-Type": "application/json",
+    "Host": "18xx-bot.vansach.me",
+    "X-Amzn-Trace-Id": "Root=1-6149f2f2-477602190e301e0a058c5447",
+    "X-Forwarded-For": "91.0.0.1",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept-Encoding": ["gzip, deflate"],
+    "Content-Type": ["application/json"],
+    "Host": ["18xx-bot.vansach.me"],
+    "X-Amzn-Trace-Id": ["Root=1-6149f2f2-477602190e301e0a058c5447"],
+    "X-Forwarded-For": ["91.0.0.1"],
+    "X-Forwarded-Port": ["443"],
+    "X-Forwarded-Proto": ["https"]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "408fc8",
+    "resourcePath": "/process-updates",
+    "httpMethod": "POST",
+    "extendedRequestId": "GBLl3FtAAi0FiuQ=",
+    "requestTime": "21/Sep/2021:14:57:54 +0000",
+    "path": "/process-updates/",
+    "accountId": "123",
+    "protocol": "HTTP/1.1",
+    "stage": "Prod",
+    "domainPrefix": "18xx-bot",
+    "requestTimeEpoch": 1632236274114,
+    "requestId": "7d95a809-3e8e-4dd7-a1a4-a13c87aa965d",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "91.0.0.1",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": null,
+      "user": null
+    },
+    "domainName": "18xx-bot.vansach.me",
+    "apiId": "321"
+  },
+  "body": "{\"update_id\":574236584,\n\"message\":{\"message_id\":21,\"from\":{\"id\":139429205,\"is_bot\":false,\"first_name\":\"\\u0410\\u043b\\u0435\\u043a\\u0441\\u0430\\u043d\\u0434\\u0440\",\"last_name\":\"\\u0412\\u0430\\u043d\\u0441\\u0430\\u0447\",\"username\":\"lordvandamm\",\"language_code\":\"en\"},\"chat\":{\"id\":139429205,\"first_name\":\"\\u0410\\u043b\\u0435\\u043a\\u0441\\u0430\\u043d\\u0434\\u0440\",\"last_name\":\"\\u0412\\u0430\\u043d\\u0441\\u0430\\u0447\",\"username\":\"lordvandamm\",\"type\":\"private\"},\"date\":1632236274,\"text\":\"/start\",\"entities\":[{\"offset\":0,\"length\":6,\"type\":\"bot_command\"}]}}",
+  "isBase64Encoded": false
+}
