@@ -1,0 +1,63 @@
+{
+  "resource": "/send-notifications",
+  "path": "/send-notifications/",
+  "httpMethod": "POST",
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip;q=1.0,deflate;q=0.6,identity;q=0.3",
+    "Content-Type": "application/json",
+    "Host": "18xx-bot.vansach.me",
+    "User-Agent": "Ruby",
+    "X-Amzn-Trace-Id": "Root=1-6149f59b-54f444ff4098d31d5ff64849",
+    "X-Forwarded-For": "167.0.0.1",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": ["*/*"],
+    "Accept-Encoding": ["gzip;q=1.0,deflate;q=0.6,identity;q=0.3"],
+    "Content-Type": ["application/json"],
+    "Host": ["18xx-bot.vansach.me"],
+    "User-Agent": ["Ruby"],
+    "X-Amzn-Trace-Id": ["Root=1-6149f59b-54f444ff4098d31d5ff64849"],
+    "X-Forwarded-For": ["167.0.0.1"],
+    "X-Forwarded-Port": ["443"],
+    "X-Forwarded-Proto": ["https"]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "hmm",
+    "resourcePath": "/send-notifications",
+    "httpMethod": "POST",
+    "extendedRequestId": "GBNQXGPBgi0FhjA=",
+    "requestTime": "21/Sep/2021:15:09:15 +0000",
+    "path": "/send-notifications/",
+    "accountId": "123",
+    "protocol": "HTTP/1.1",
+    "stage": "Prod",
+    "domainPrefix": "18xx-bot",
+    "requestTimeEpoch": 1632236955713,
+    "requestId": "2d5fa83c-6872-4ebc-b70d-c988a4fc15b6",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "167.0.0.1",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "Ruby",
+      "user": null
+    },
+    "domainName": "18xx-bot.vansach.me",
+    "apiId": "321"
+  },
+  "body": "{\"text\":\"<@123456789> Your Turn in 1836Jr30 \\\"Test game\\\" (Auction Round 1)\\nhttp://18xx.games/game/1234\"}",
+  "isBase64Encoded": false
+}
