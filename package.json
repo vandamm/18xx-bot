@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "A simple bot to send 18xx.games notifications to Telegram",
   "repository": "https://github.com/vandamm/18xx-bot.git",
-  "author": "Aleksandr Vansach <alex@vansach.me>",
+  "author": "Alexander Vansach <alex@vansach.me>",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
