@@ -1,8 +1,16 @@
-import { APIGatewayProxyEvent, Context } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyEventPathParameters,
+  Context,
+} from 'aws-lambda';
 import { TelegramClient } from 'messaging-api-telegram';
 
 const body =
-  '{"text":"<@123456789> Your Turn in 1836Jr30 \\"Test game\\" (Auction Round 1)\\nhttp://18xx.games/game/1234"}';
+  '{"text":"<@User> Your Turn in 1836Jr30 \\"Test game\\" (Auction Round 1)\\nhttp://18xx.games/game/1234"}';
+
+const pathParameters = <APIGatewayProxyEventPathParameters>{
+  chatId: '123456789',
+};
 
 const originalEnv = process.env;
 
@@ -18,7 +26,10 @@ test('sends notifications successfully', async () => {
   const mockFn = mockTelegramClientRequest();
 
   const result = await handler(
-    <APIGatewayProxyEvent>{ body },
+    <APIGatewayProxyEvent>{
+      body,
+      pathParameters,
+    },
     <Context>{},
     () => {}
   );
@@ -29,17 +40,31 @@ test('sends notifications successfully', async () => {
     '/sendMessage',
     {
       chatId: 123456789,
+      // FIXME: Mock message template?
       text: 'Your Turn in 1836Jr30 "Test game" (Auction Round 1)\n[http://18xx.games/game/1234](http://18xx.games/game/1234)',
       parseMode: 'Markdown',
     },
   ]);
 });
 
+test('fails if chatId is not specified', async () => {
+  const mockFn = mockTelegramClientRequest();
+
+  const result = await handler(
+    <APIGatewayProxyEvent>{ body },
+    <Context>{},
+    () => {}
+  );
+
+  expect(result).toEqual({ statusCode: 400, body: 'Invalid input' });
+  expect(mockFn.mock.calls.length).toBe(0);
+});
+
 test('does not send anything if text does not match', async () => {
   const mockFn = mockTelegramClientRequest();
 
   const result = await handler(
-    <APIGatewayProxyEvent>{ body: '{"text":"sdfsdf"}' },
+    <APIGatewayProxyEvent>{ body: '{"text":"sdfsdf"}', pathParameters },
     <Context>{},
     () => {}
   );
@@ -59,7 +84,7 @@ test('fails if error happens', async () => {
   });
 
   const result = await handler(
-    <APIGatewayProxyEvent>{ body },
+    <APIGatewayProxyEvent>{ body, pathParameters },
     <Context>{},
     () => {}
   );

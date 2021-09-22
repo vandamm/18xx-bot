@@ -5,8 +5,6 @@ import { Bot } from '../lib/bot';
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-  console.log('Event', event);
-
   try {
     await bot.processUpdate(JSON.parse(event.body) as Update);
 
