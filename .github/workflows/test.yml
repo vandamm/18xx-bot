@@ -1,7 +1,9 @@
+name: test
 on:
   pull_request:
 jobs:
-  test:
+  test-jest:
+    name: jest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # checkout the repo
