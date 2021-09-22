@@ -4,3 +4,4 @@ template.yaml
 .vscode
 .aws-sam
 dist
+**/*.test.*
