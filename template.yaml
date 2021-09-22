@@ -43,7 +43,7 @@ Resources:
         SendNotifications:
           Type: Api
           Properties:
-            Path: /send-notifications
+            Path: /send-notifications/{chatId}
             Method: post
       Environment:
         Variables:
