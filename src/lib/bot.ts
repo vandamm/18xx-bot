@@ -1,6 +1,6 @@
-import { Update } from 'typegram';
+import { Update, Message as TypegramMessage } from 'typegram';
 import { TelegramClient } from 'messaging-api-telegram';
-import { Message, ParseMode } from 'messaging-api-telegram/dist/TelegramTypes';
+import { ParseMode, Message } from 'messaging-api-telegram/dist/TelegramTypes';
 import { configurationMessage } from './templates';
 
 export class Bot {
@@ -16,7 +16,10 @@ export class Bot {
   }
 
   async processUpdate(update: Update) {
-    if (isMessageUpdate(update)) {
+    if (
+      isMessageUpdate(update) &&
+      (<TypegramMessage.TextMessage>update.message).text === '/start'
+    ) {
       const chatId = update.message.chat.id;
 
       await this.client.sendMessage(chatId, configurationMessage(chatId), {
