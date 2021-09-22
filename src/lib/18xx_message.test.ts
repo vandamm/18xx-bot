@@ -31,6 +31,12 @@ test('does nothing if input is empty', () => {
   expect(message).toEqual(emptyMessage);
 });
 
+test('does nothing if input has no property', () => {
+  const message = new Parsed18xxMessage(JSON.parse('{}'));
+
+  expect(message).toEqual(emptyMessage);
+});
+
 test('parses message', () => {
   const message = new Parsed18xxMessage(JSON.parse(event));
 

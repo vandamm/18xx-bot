@@ -2,7 +2,7 @@ interface Incoming18xxMessage {
   text: string;
 }
 
-const MESSAGE_PATTERN: RegExp =
+const MESSAGE_PATTERN =
   /<@(?<userId>.*)> (?<text>.+) in (?<title>\w+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
 
 /**
@@ -20,8 +20,10 @@ export class Parsed18xxMessage {
   /**
    * Create a parsed message from request payload
    */
-  constructor(message: Incoming18xxMessage) {
-    const match = MESSAGE_PATTERN.exec(message.text);
+  constructor(message: object) {
+    if (!isValidMessage(message)) return;
+
+    const match = message.text.match(MESSAGE_PATTERN);
 
     if (!match) return;
 
@@ -45,4 +47,8 @@ export class Parsed18xxMessage {
 
     return `${this.text} in ${this.title} "${this.description}" (${this.round} ${this.turn})`;
   }
+}
+
+function isValidMessage(message: any): message is Incoming18xxMessage {
+  return typeof message === 'object' && 'text' in message;
 }
