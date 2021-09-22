@@ -2,27 +2,33 @@ interface Incoming18xxMessage {
   text: string;
 }
 
-export class Parsed18xxMessage {
-  private static pattern: RegExp =
-    /<@(?<chatId>.*)> (?<message>.+ in \w+ ".*" \(.*\))\n(?<link>.*)/g;
+const MESSAGE_PATTERN: RegExp =
+  /<@(?<userId>.*)> (?<text>.+) in (?<title>\w+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
 
-  chatId: number;
-  text: string;
-  link: string;
+export class Parsed18xxMessage {
+  readonly userId: string;
+  readonly text: string;
+  readonly title: string;
+  readonly description: string;
+  readonly round: string;
+  readonly turn: number;
+  readonly link: string;
 
   constructor(message: object) {
     const raw = <Incoming18xxMessage>message;
-
-    if (!raw.text) return;
-
-    const match = Parsed18xxMessage.pattern.exec(raw.text);
+    const match = MESSAGE_PATTERN.exec(raw.text);
 
     if (!match) return;
 
-    const { groups } = match;
+    const { userId, text, title, description, round, turn, link } =
+      match.groups;
 
-    this.chatId = parseInt(groups.chatId);
-    this.text = groups.text;
-    this.link = groups.link;
+    this.userId = userId;
+    this.text = text;
+    this.title = title;
+    this.description = description;
+    this.round = round;
+    this.turn = parseInt(turn);
+    this.link = link;
   }
 }
