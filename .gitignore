@@ -103,6 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
+# Test artifacts
+reports
+
 # AWS
 .aws-sam
 samconfig.toml
