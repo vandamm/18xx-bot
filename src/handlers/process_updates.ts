@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Update } from 'typegram';
-import { Bot } from '../lib/bot.js';
+import { Bot } from '../lib/bot';
 
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 

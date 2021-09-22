@@ -2,27 +2,57 @@ interface Incoming18xxMessage {
   text: string;
 }
 
+const MESSAGE_PATTERN =
+  /<@(?<userId>.*)> (?<text>.+) in (?<title>\w+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
+
+/**
+ * Extracts and stores meaningful data from 18xx.games turn notification
+ */
 export class Parsed18xxMessage {
-  private static pattern: RegExp =
-    /<@(?<chatId>.*)> (?<message>.+ in \w+ ".*" \(.*\))\n(?<link>.*)/g;
+  readonly userId: string;
+  readonly text: string;
+  readonly title: string;
+  readonly description: string;
+  readonly round: string;
+  readonly turn: number;
+  readonly link: string;
 
-  chatId: number;
-  text: string;
-  link: string;
+  readonly valid: boolean = false;
 
+  /**
+   * Create a parsed message from request payload
+   */
   constructor(message: object) {
-    const raw = <Incoming18xxMessage>message;
+    if (!isValidMessage(message)) return;
 
-    if (!raw.text) return;
-
-    const match = Parsed18xxMessage.pattern.exec(raw.text);
+    const match = message.text.match(MESSAGE_PATTERN);
 
     if (!match) return;
 
-    const { groups } = match;
+    const { userId, text, title, description, round, turn, link } =
+      match.groups;
 
-    this.chatId = parseInt(groups.chatId);
-    this.text = groups.text;
-    this.link = groups.link;
+    this.userId = userId;
+    this.text = text;
+    this.title = title;
+    this.description = description;
+    this.round = round;
+    this.turn = parseInt(turn);
+    this.link = link;
+
+    this.valid = true;
   }
+
+  /**
+   * Format message back to what it was except user id
+   */
+  toString(): string {
+    if (!this.userId) return '';
+
+    return `${this.text} in ${this.title} "${this.description}" (${this.round} ${this.turn})`;
+  }
+}
+
+function isValidMessage(message: any): message is Incoming18xxMessage {
+  return typeof message === 'object' && 'text' in message;
 }
