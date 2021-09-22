@@ -26,7 +26,9 @@
   },
   "queryStringParameters": null,
   "multiValueQueryStringParameters": null,
-  "pathParameters": null,
+  "pathParameters": {
+    "chatId": "123456789"
+  },
   "stageVariables": null,
   "requestContext": {
     "resourceId": "hmm",
@@ -58,6 +60,6 @@
     "domainName": "18xx-bot.vansach.me",
     "apiId": "321"
   },
-  "body": "{\"text\":\"<@123456789> Your Turn in 1836Jr30 \\\"Test game\\\" (Auction Round 1)\\nhttp://18xx.games/game/1234\"}",
+  "body": "{\"text\":\"<@UserName> Your Turn in 1836Jr30 \\\"Test game\\\" (Auction Round 1)\\nhttp://18xx.games/game/1234\"}",
   "isBase64Encoded": false
 }
