@@ -5,6 +5,9 @@ interface Incoming18xxMessage {
 const MESSAGE_PATTERN: RegExp =
   /<@(?<userId>.*)> (?<text>.+) in (?<title>\w+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
 
+/**
+ * Extracts and stores meaningful data from 18xx.games turn notification
+ */
 export class Parsed18xxMessage {
   readonly userId: string;
   readonly text: string;
@@ -14,9 +17,11 @@ export class Parsed18xxMessage {
   readonly turn: number;
   readonly link: string;
 
-  constructor(message: object) {
-    const raw = <Incoming18xxMessage>message;
-    const match = MESSAGE_PATTERN.exec(raw.text);
+  /**
+   * Create a parsed message from request payload
+   */
+  constructor(message: Incoming18xxMessage) {
+    const match = MESSAGE_PATTERN.exec(message.text);
 
     if (!match) return;
 
