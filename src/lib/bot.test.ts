@@ -37,7 +37,7 @@ test('processes updates', async () => {
   const bot = new Bot('token');
 
   await bot.processUpdate(<Update.MessageUpdate>{
-    message: { chat: { id: 456 } },
+    message: { chat: { id: 456 }, text: '/start' },
   });
 
   expect(mockFn.mock.calls.length).toBe(1);
@@ -49,6 +49,18 @@ test('processes updates', async () => {
       parseMode: 'Markdown',
     },
   ]);
+});
+
+test('does not process non-start updates', async () => {
+  const mockFn = mockTelegramClientRequest();
+
+  const bot = new Bot('token');
+
+  await bot.processUpdate(<Update.MessageUpdate>{
+    message: { chat: { id: 456 }, text: 'hello' },
+  });
+
+  expect(mockFn.mock.calls.length).toBe(0);
 });
 
 test('does not process non-message updates', async () => {
