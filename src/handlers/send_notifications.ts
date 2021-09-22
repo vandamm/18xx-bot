@@ -6,6 +6,10 @@ import { notificationMessage } from '../lib/templates';
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  const chatId = parseInt(event.pathParameters?.chatId);
+
+  if (isNaN(chatId)) return { statusCode: 400, body: 'Invalid input' };
+
   try {
     const message = new Parsed18xxMessage(JSON.parse(event.body));
 
@@ -16,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       };
 
     await bot.sendMessage(
-      parseInt(message.userId),
+      chatId,
       notificationMessage(message.toString(), message.link)
     );
 

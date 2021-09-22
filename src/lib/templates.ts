@@ -7,8 +7,8 @@ export function configurationMessage(chatId: number): string {
 
 *Turn/Message Notifications*: Webhook
 *Webhook*: Custom
-*Webhook URL*: \`${WEBHOOK_URL_18XX}\`
-*Webhook User ID*: \`${chatId.toString()}\``;
+*Webhook URL*: \`${WEBHOOK_URL_18XX}${chatId.toString()}\`
+*Webhook User ID*: Type anything here, maybe "Hi"`;
 }
 
 export function notificationMessage(text: string, link: string): string {
