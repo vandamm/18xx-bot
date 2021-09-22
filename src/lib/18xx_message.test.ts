@@ -44,3 +44,17 @@ test('parses message', () => {
     link: 'http://18xx.games/game/1234',
   });
 });
+
+test('formats message text back to original', () => {
+  const message = new Parsed18xxMessage(JSON.parse(event));
+
+  expect(message.toString()).toBe(
+    'Your Turn in 1836Jr30 "Test game" (Auction Round 1)'
+  );
+});
+
+test('formats empty message to nothing', () => {
+  const message = new Parsed18xxMessage({ text: '' });
+
+  expect(message.toString()).toBe('');
+});

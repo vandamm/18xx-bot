@@ -36,4 +36,13 @@ export class Parsed18xxMessage {
     this.turn = parseInt(turn);
     this.link = link;
   }
+
+  /**
+   * Format message back to what it was except user id
+   */
+  toString(): string {
+    if (!this.userId) return '';
+
+    return `${this.text} in ${this.title} "${this.description}" (${this.round} ${this.turn})`;
+  }
 }
