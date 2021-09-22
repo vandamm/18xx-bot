@@ -11,6 +11,7 @@ const emptyMessage = {
   round: undefined,
   turn: undefined,
   link: undefined,
+  valid: false,
 };
 
 test('does nothing if text is empty', () => {
@@ -48,6 +49,7 @@ test('parses message', () => {
     round: 'Auction Round',
     turn: 1,
     link: 'http://18xx.games/game/1234',
+    valid: true,
   });
 });
 

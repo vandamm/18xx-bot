@@ -39,12 +39,15 @@ test('does not send anything if text does not match', async () => {
   const mockFn = mockTelegramClientRequest();
 
   const result = await handler(
-    <APIGatewayProxyEvent>{ body: '123123123' },
+    <APIGatewayProxyEvent>{ body: '{"text":"sdfsdf"}' },
     <Context>{},
     () => {}
   );
 
-  expect(result).toEqual({ statusCode: 200, body: 'OK' });
+  expect(result).toEqual({
+    statusCode: 422,
+    body: 'Message has invalid format',
+  });
   expect(mockFn.mock.calls.length).toBe(0);
 });
 
@@ -56,7 +59,7 @@ test('fails if error happens', async () => {
   });
 
   const result = await handler(
-    <APIGatewayProxyEvent>{ body: '{}' },
+    <APIGatewayProxyEvent>{ body },
     <Context>{},
     () => {}
   );

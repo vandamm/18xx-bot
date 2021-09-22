@@ -17,6 +17,8 @@ export class Parsed18xxMessage {
   readonly turn: number;
   readonly link: string;
 
+  readonly valid: boolean = false;
+
   /**
    * Create a parsed message from request payload
    */
@@ -37,6 +39,8 @@ export class Parsed18xxMessage {
     this.round = round;
     this.turn = parseInt(turn);
     this.link = link;
+
+    this.valid = true;
   }
 
   /**

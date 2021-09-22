@@ -11,6 +11,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   try {
     const message = new Parsed18xxMessage(JSON.parse(event.body));
 
+    if (!message.valid)
+      return {
+        statusCode: 422,
+        body: 'Message has invalid format',
+      };
+
     await bot.sendMessage(
       parseInt(message.userId),
       notificationMessage(message.toString(), message.link)
