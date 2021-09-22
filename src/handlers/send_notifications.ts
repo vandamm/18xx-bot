@@ -12,8 +12,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const message = new Parsed18xxMessage(JSON.parse(event.body));
 
     await bot.sendMessage(
-      message.chatId,
-      notificationMessage(message.text, message.link)
+      parseInt(message.userId),
+      notificationMessage(message.toString(), message.link)
     );
 
     return { statusCode: 200, body: 'OK' };
