@@ -1,6 +1,6 @@
 {
   "name": "18xx-bot",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A simple bot to send 18xx.games notifications to Telegram",
   "repository": "https://github.com/vandamm/18xx-bot.git",
   "author": "Alexander Vansach <alex@vansach.me>",
