@@ -1,12 +1,13 @@
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Update } from 'typegram';
-import { Bot } from '../lib/bot';
-
-const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
+import { getBotInstance } from '../lib/bot_repository';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   try {
-    await bot.processUpdate(JSON.parse(event.body) as Update);
+    const update = JSON.parse(event.body) as Update;
+    const bot = await getBotInstance();
+
+    await bot.processUpdate(update);
 
     return { statusCode: 200, body: 'OK' };
   } catch (e) {

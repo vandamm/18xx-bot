@@ -1,9 +1,7 @@
-import { Bot } from '../lib/bot';
 import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Parsed18xxMessage } from '../lib/18xx_message';
+import { getBotInstance } from '../lib/bot_repository';
 import { notificationMessage } from '../lib/templates';
-
-const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const chatId = parseInt(event.pathParameters?.chatId);
@@ -18,6 +16,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         statusCode: 422,
         body: 'Message has invalid format',
       };
+
+    const bot = await getBotInstance();
 
     await bot.sendMessage(
       chatId,
