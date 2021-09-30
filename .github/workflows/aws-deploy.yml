@@ -18,4 +18,12 @@ jobs:
 
       - run: sam build --use-container
 
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --resolve-image-repos --stack-name bot-18xx --s3-bucket ${{ secrets.AWS_S3_BUCKET }} --capabilities CAPABILITY_IAM --region eu-central-1
+      - run: >-
+          sam deploy
+          --no-confirm-changeset
+          --no-fail-on-empty-changeset
+          --resolve-image-repos
+          --stack-name bot-18xx
+          --s3-bucket ${{ secrets.AWS_S3_BUCKET }}
+          --capabilities CAPABILITY_IAM
+          --region eu-central-1
