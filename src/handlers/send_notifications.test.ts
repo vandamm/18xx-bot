@@ -5,20 +5,19 @@ import {
 } from 'aws-lambda';
 import { TelegramClient } from 'messaging-api-telegram';
 
+jest.mock('../lib/get_secret', () => {
+  return {
+    __esModule: true,
+    getSecret: async (name: string) => '123',
+  };
+});
+
 const body =
   '{"text":"<@User> Your Turn in 1836Jr30 \\"Test game\\" (Auction Round 1)\\nhttp://18xx.games/game/1234"}';
 
 const pathParameters = <APIGatewayProxyEventPathParameters>{
   chatId: '123456789',
 };
-
-const originalEnv = process.env;
-
-afterAll(() => {
-  process.env = originalEnv;
-});
-
-process.env.TELEGRAM_BOT_TOKEN = '123';
 
 import { handler } from './send_notifications';
 
