@@ -5,7 +5,7 @@ from 18xx.games website when it's your turn.
 
 # How to use
 
-1. Message @Notify18xxGamesBot(https://t.me/Notify18xxGamesBot) in Telegram
+1. Message [@Notify18xxGamesBot](https://t.me/Notify18xxGamesBot) in Telegram
 2. Click "Start"
 3. Bot will send you message detailing how to configure notifications
    on 18xx.games
