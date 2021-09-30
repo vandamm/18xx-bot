@@ -27,7 +27,6 @@ Resources:
       Environment:
         Variables:
           WEBHOOK_URL_18XX: 'https://18xx-bot.vansach.me/send-notifications/'
-          TELEGRAM_BOT_TOKEN: ''
     Metadata:
       DockerTag: nodejs14.x-v1
       DockerContext: ./
@@ -45,9 +44,6 @@ Resources:
           Properties:
             Path: /send-notifications/{chatId}
             Method: post
-      Environment:
-        Variables:
-          TELEGRAM_BOT_TOKEN: ''
     Metadata:
       DockerTag: nodejs14.x-v1
       DockerContext: ./
