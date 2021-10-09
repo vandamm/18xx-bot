@@ -22,7 +22,7 @@ export class Parsed18xxMessage {
   /**
    * Create a parsed message from request payload
    */
-  constructor(message: object) {
+  constructor(message: Incoming18xxMessage) {
     if (!isValidMessage(message)) return;
 
     const match = message.text.match(MESSAGE_PATTERN);

@@ -6,7 +6,7 @@ afterEach(() => (process.env = env));
 
 test('configurationMessage requires webhook url', () => {
   expect(() => configurationMessage(1)).toThrow(
-    'WEBHOOK_URL_18XX is undefined'
+    'WEBHOOK_URL_18XX is undefined',
   );
 });
 

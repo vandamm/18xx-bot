@@ -1,6 +1,6 @@
 import { TelegramClient } from 'messaging-api-telegram';
 import { Update } from 'typegram';
-import { Bot } from './bot';
+import { Bot } from './bot.service';
 
 jest.mock('./templates', () => {
   return {
