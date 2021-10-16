@@ -17,7 +17,6 @@ export class BotService {
 
       this.instance = new TelegramClient({
         accessToken,
-        origin,
       });
     }
 
