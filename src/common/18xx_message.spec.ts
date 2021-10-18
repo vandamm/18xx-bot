@@ -13,56 +13,57 @@ const emptyMessage = {
   link: undefined,
   valid: false,
 };
+describe('18xx message', () => {
+  it('does nothing if text is empty', () => {
+    const message = new Parsed18xxMessage({ text: '' });
 
-test('does nothing if text is empty', () => {
-  const message = new Parsed18xxMessage({ text: '' });
-
-  expect(message).toEqual(emptyMessage);
-});
-
-test('does nothing if text does not match', () => {
-  const message = new Parsed18xxMessage({ text: 'asdasdasd' });
-
-  expect(message).toEqual(emptyMessage);
-});
-
-test('does nothing if input is empty', () => {
-  const message = new Parsed18xxMessage(JSON.parse('""'));
-
-  expect(message).toEqual(emptyMessage);
-});
-
-test('does nothing if input has no property', () => {
-  const message = new Parsed18xxMessage(JSON.parse('{}'));
-
-  expect(message).toEqual(emptyMessage);
-});
-
-test('parses message', () => {
-  const message = new Parsed18xxMessage(JSON.parse(event));
-
-  expect(message).toEqual({
-    userId: '123456789',
-    text: 'Your Turn',
-    title: '1836Jr30',
-    description: 'Test game',
-    round: 'Auction Round',
-    turn: 1,
-    link: 'http://18xx.games/game/1234',
-    valid: true,
+    expect(message).toEqual(emptyMessage);
   });
-});
 
-test('formats message text back to original', () => {
-  const message = new Parsed18xxMessage(JSON.parse(event));
+  it('does nothing if text does not match', () => {
+    const message = new Parsed18xxMessage({ text: 'asdasdasd' });
 
-  expect(message.toString()).toBe(
-    'Your Turn in 1836Jr30 "Test game" (Auction Round 1)',
-  );
-});
+    expect(message).toEqual(emptyMessage);
+  });
 
-test('formats empty message to nothing', () => {
-  const message = new Parsed18xxMessage({ text: '' });
+  it('does nothing if input is empty', () => {
+    const message = new Parsed18xxMessage(JSON.parse('""'));
 
-  expect(message.toString()).toBe('');
+    expect(message).toEqual(emptyMessage);
+  });
+
+  it('does nothing if input has no property', () => {
+    const message = new Parsed18xxMessage(JSON.parse('{}'));
+
+    expect(message).toEqual(emptyMessage);
+  });
+
+  it('parses message', () => {
+    const message = new Parsed18xxMessage(JSON.parse(event));
+
+    expect(message).toEqual({
+      userId: '123456789',
+      text: 'Your Turn',
+      title: '1836Jr30',
+      description: 'Test game',
+      round: 'Auction Round',
+      turn: 1,
+      link: 'http://18xx.games/game/1234',
+      valid: true,
+    });
+  });
+
+  it('formats message text back to original', () => {
+    const message = new Parsed18xxMessage(JSON.parse(event));
+
+    expect(message.toString()).toBe(
+      'Your Turn in 1836Jr30 "Test game" (Auction Round 1)',
+    );
+  });
+
+  it('formats empty message to nothing', () => {
+    const message = new Parsed18xxMessage({ text: '' });
+
+    expect(message.toString()).toBe('');
+  });
 });
