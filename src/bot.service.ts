@@ -43,5 +43,5 @@ export class BotService {
 }
 
 function isMessageUpdate(update: Update): update is Update.MessageUpdate {
-  return (<Update.MessageUpdate>update).message !== undefined;
+  return update && (<Update.MessageUpdate>update).message !== undefined;
 }

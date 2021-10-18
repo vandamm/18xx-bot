@@ -81,6 +81,12 @@ describe('BotService', () => {
 
     expect(mockFn.mock.calls.length).toBe(0);
   });
+
+  it('does not process empty updates', async () => {
+    await botService.processUpdate(null);
+
+    expect(mockFn.mock.calls.length).toBe(0);
+  });
 });
 
 function mockTelegramClientRequest(implementation?: any) {
