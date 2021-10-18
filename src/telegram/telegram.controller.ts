@@ -6,6 +6,7 @@ import { Update } from 'typegram';
 export class TelegramController {
   constructor(private readonly botService: BotService) {}
 
+  // TODO: Add validation pipe for update json structure
   @Post('process-update')
   async processUpdate(@Body() update: Update) {
     await this.botService.processUpdate(update);
