@@ -1,7 +1,0 @@
-events
-node_modules
-template.yaml
-.vscode
-.aws-sam
-dist
-**/*.test.*
