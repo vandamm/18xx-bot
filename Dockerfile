@@ -1,4 +1,4 @@
-FROM node:16@sha256:d6a8cd069ab740759394a9338dc4bc4b9b32b15209cccd0c7faa32d438b1076e as build
+FROM node:16@sha256:d6a8cd069ab740759394a9338dc4bc4b9b32b15209cccd0c7faa32d438b1076e as base
 
 WORKDIR /usr/src/app
 
@@ -17,7 +17,7 @@ ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=base /usr/src/app/dist ./dist
 COPY --chown=node:node package.json yarn.lock tsconfig.json ./
 
 RUN yarn install --production
