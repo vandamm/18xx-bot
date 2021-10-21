@@ -1,0 +1,15 @@
+services:
+  web:
+    build:
+      context: .
+      target: base
+    command: yarn start:debug
+    environment:
+      - NODE_ENV=development
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/app:cached
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
