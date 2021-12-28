@@ -6,6 +6,7 @@ services:
     command: yarn start:debug
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres/bot_18xx
     ports:
       - 3000:3000
     volumes:
@@ -13,3 +14,10 @@ services:
       - /usr/src/app/node_modules
     env_file:
       - .env
+  postgres:
+    image: postgres:13
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
