@@ -3,7 +3,7 @@ interface Incoming18xxMessage {
 }
 
 const MESSAGE_PATTERN =
-  /<@(?<userId>.*)> (?<text>.+) in (?<title>\w+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
+  /<@(?<userId>.*)> (?<text>.+) in (?<title>.+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
 
 /**
  * Extracts and stores meaningful data from 18xx.games turn notification
@@ -54,5 +54,5 @@ export class Parsed18xxMessage {
 }
 
 function isValidMessage(message: any): message is Incoming18xxMessage {
-  return typeof message === 'object' && 'text' in message;
+  return message && typeof message === 'object' && 'text' in message;
 }

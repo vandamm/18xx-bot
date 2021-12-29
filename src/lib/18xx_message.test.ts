@@ -53,6 +53,14 @@ test('parses message', () => {
   });
 });
 
+test('parses 18ZOO message', () => {
+  const message = new Parsed18xxMessage({
+    text: '<@Hello> Your Turn in 18ZOO - Map A "test zoo" (SR-day 1)\nhttp://18xx.games/game/59585',
+  });
+
+  expect(message.valid).toBeTruthy();
+});
+
 test('formats message text back to original', () => {
   const message = new Parsed18xxMessage(JSON.parse(event));
 
