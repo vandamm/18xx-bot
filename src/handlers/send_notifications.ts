@@ -1,34 +1,30 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Parsed18xxMessage } from '../lib/18xx_message';
 import { getBotInstance } from '../lib/bot_repository';
 import { notificationMessage } from '../lib/templates';
 
-export const handler: APIGatewayProxyHandler = async (event) => {
-  const chatId = parseInt(event.pathParameters?.chatId);
-
-  if (isNaN(chatId)) return { statusCode: 400, body: 'Invalid input' };
+export async function handleSendNotifications(request: Request, env: any, chatId: number): Promise<Response> {
+  if (isNaN(chatId)) {
+    return new Response('Invalid input', { status: 400 });
+  }
 
   try {
-    const message = new Parsed18xxMessage(JSON.parse(event.body));
+    const body = await request.json();
+    const message = new Parsed18xxMessage(body as object);
 
-    if (!message.valid)
-      return {
-        statusCode: 422,
-        body: 'Message has invalid format',
-      };
+    if (!message.valid) {
+      return new Response('Message has invalid format', { status: 422 });
+    }
 
-    const bot = await getBotInstance();
+    const bot = await getBotInstance(env);
 
     await bot.sendMessage(
       chatId,
       notificationMessage(message.toString(), message.link)
     );
 
-    return { statusCode: 200, body: 'OK' };
+    return new Response('OK', { status: 200 });
   } catch (e) {
-    return {
-      statusCode: 500,
-      body: e.message,
-    };
+    const error = e as Error;
+    return new Response(error.message, { status: 500 });
   }
-};
+} 

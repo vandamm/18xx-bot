@@ -1,102 +1,96 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyEventPathParameters,
-  Context,
-} from 'aws-lambda';
-import { TelegramClient } from 'messaging-api-telegram';
+import { handleSendNotifications } from './send_notifications';
+import { getBotInstance } from '../lib/bot_repository';
 
-jest.mock('../lib/get_secret', () => {
-  return {
-    __esModule: true,
-    getSecret: async (name: string) => '123',
-  };
-});
+jest.mock('../lib/bot_repository', () => ({
+  getBotInstance: jest.fn(),
+}));
 
-const body =
-  '{"text":"<@User> Your Turn in 1836Jr30 \\"Test game\\" (Auction Round 1)\\nhttp://18xx.games/game/1234"}';
+describe('handleSendNotifications', () => {
+  let mockBot: any;
+  let mockEnv: any;
 
-const pathParameters = <APIGatewayProxyEventPathParameters>{
-  chatId: '123456789',
-};
-
-import { handler } from './send_notifications';
-
-test('sends notifications successfully', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const result = await handler(
-    <APIGatewayProxyEvent>{
-      body,
-      pathParameters,
-    },
-    <Context>{},
-    () => {}
-  );
-
-  expect(result).toEqual({ statusCode: 200, body: 'OK' });
-  expect(mockFn.mock.calls.length).toBe(1);
-  expect(mockFn.mock.calls[0]).toEqual([
-    '/sendMessage',
-    {
-      chatId: 123456789,
-      // FIXME: Mock message template?
-      text: 'Your Turn in 1836Jr30 "Test game" (Auction Round 1)\n[http://18xx.games/game/1234](http://18xx.games/game/1234)',
-      parseMode: 'Markdown',
-    },
-  ]);
-});
-
-test('fails if chatId is not specified', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const result = await handler(
-    <APIGatewayProxyEvent>{ body },
-    <Context>{},
-    () => {}
-  );
-
-  expect(result).toEqual({ statusCode: 400, body: 'Invalid input' });
-  expect(mockFn.mock.calls.length).toBe(0);
-});
-
-test('does not send anything if text does not match', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const result = await handler(
-    <APIGatewayProxyEvent>{ body: '{"text":"sdfsdf"}', pathParameters },
-    <Context>{},
-    () => {}
-  );
-
-  expect(result).toEqual({
-    statusCode: 422,
-    body: 'Message has invalid format',
-  });
-  expect(mockFn.mock.calls.length).toBe(0);
-});
-
-test('fails if error happens', async () => {
-  const error = 'Error happened';
-
-  mockTelegramClientRequest(() => {
-    throw new Error(error);
+  beforeEach(() => {
+    mockBot = {
+      sendMessage: jest.fn(),
+    };
+    (getBotInstance as jest.Mock).mockResolvedValue(mockBot);
+    
+    mockEnv = {
+      TELEGRAM_BOT_18XX: 'test-bot-token',
+      WEBHOOK_URL_18XX: 'https://test.com/send-notifications/',
+    };
   });
 
-  const result = await handler(
-    <APIGatewayProxyEvent>{ body, pathParameters },
-    <Context>{},
-    () => {}
-  );
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-  expect(result).toEqual({ statusCode: 500, body: error });
-});
+  it('should send notifications successfully', async () => {
+    const messageBody = {
+      text: '<@User> Your Turn in 1836Jr30 "Test game" (Auction Round 1)\nhttp://18xx.games/game/1234',
+    };
 
-function mockTelegramClientRequest(implementation?: any) {
-  const mockFn = jest.fn(implementation);
+    const request = new Request('https://test.com/send-notifications/123456789', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(messageBody),
+    });
 
-  jest
-    .spyOn(TelegramClient.prototype as any, 'request')
-    .mockImplementation(mockFn);
+    const response = await handleSendNotifications(request, mockEnv, 123456789);
 
-  return mockFn;
-}
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe('OK');
+    expect(getBotInstance).toHaveBeenCalledWith(mockEnv);
+    expect(mockBot.sendMessage).toHaveBeenCalledWith(
+      123456789,
+      'Your Turn in 1836Jr30 "Test game" (Auction Round 1)\n[http://18xx.games/game/1234](http://18xx.games/game/1234)'
+    );
+  });
+
+  it('should return 400 for invalid chatId', async () => {
+    const request = new Request('https://test.com/send-notifications/invalid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'test' }),
+    });
+
+    const response = await handleSendNotifications(request, mockEnv, NaN);
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toBe('Invalid input');
+    expect(mockBot.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('should return 422 for invalid message format', async () => {
+    const request = new Request('https://test.com/send-notifications/123456789', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'invalid format' }),
+    });
+
+    const response = await handleSendNotifications(request, mockEnv, 123456789);
+
+    expect(response.status).toBe(422);
+    expect(await response.text()).toBe('Message has invalid format');
+    expect(mockBot.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it('should handle errors in send notifications', async () => {
+    mockBot.sendMessage.mockRejectedValue(new Error('Send error'));
+
+    const messageBody = {
+      text: '<@User> Your Turn in 1836Jr30 "Test game" (Auction Round 1)\nhttp://18xx.games/game/1234',
+    };
+
+    const request = new Request('https://test.com/send-notifications/123456789', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(messageBody),
+    });
+
+    const response = await handleSendNotifications(request, mockEnv, 123456789);
+
+    expect(response.status).toBe(500);
+    expect(await response.text()).toBe('Send error');
+  });
+}); 

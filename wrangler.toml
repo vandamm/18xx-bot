@@ -1,0 +1,14 @@
+name = "18xx-bot"
+main = "dist/index.js"
+compatibility_date = "2023-12-18"
+
+[env.production]
+routes = [
+  { pattern = "18xx-bot.vansach.me/*", zone_name = "vansach.me" }
+]
+
+[vars]
+WEBHOOK_URL_18XX = "https://18xx-bot.vansach.me/send-notifications/"
+
+# Add your secrets via: wrangler secret put TELEGRAM_BOT_18XX
+# wrangler secret put TELEGRAM_BOT_18XX 

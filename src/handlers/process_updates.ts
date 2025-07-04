@@ -1,19 +1,16 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
 import { Update } from 'typegram';
 import { getBotInstance } from '../lib/bot_repository';
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+export async function handleProcessUpdates(request: Request, env: any): Promise<Response> {
   try {
-    const update = JSON.parse(event.body) as Update;
-    const bot = await getBotInstance();
+    const update = await request.json() as Update;
+    const bot = await getBotInstance(env);
 
-    await bot.processUpdate(update);
+    await bot.processUpdate(update, env.WEBHOOK_URL_18XX);
 
-    return { statusCode: 200, body: 'OK' };
+    return new Response('OK', { status: 200 });
   } catch (e) {
-    return {
-      body: e.message,
-      statusCode: 500,
-    };
+    const error = e as Error;
+    return new Response(error.message, { status: 500 });
   }
-};
+} 

@@ -38,7 +38,7 @@ test('processes updates', async () => {
 
   await bot.processUpdate(<Update.MessageUpdate>{
     message: { chat: { id: 456 }, text: '/start' },
-  });
+  }, 'https://test.com/webhook/');
 
   expect(mockFn.mock.calls.length).toBe(1);
   expect(mockFn.mock.calls[0]).toEqual([
@@ -58,7 +58,7 @@ test('does not process non-start updates', async () => {
 
   await bot.processUpdate(<Update.MessageUpdate>{
     message: { chat: { id: 456 }, text: 'hello' },
-  });
+  }, 'https://test.com/webhook/');
 
   expect(mockFn.mock.calls.length).toBe(0);
 });
@@ -68,7 +68,7 @@ test('does not process non-message updates', async () => {
 
   const bot = new Bot('token');
 
-  await bot.processUpdate(<Update>{});
+  await bot.processUpdate(<Update>{}, 'https://test.com/webhook/');
 
   expect(mockFn.mock.calls.length).toBe(0);
 });
