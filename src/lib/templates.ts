@@ -1,11 +1,13 @@
-export function configurationMessage(chatId: number, webhookUrl: string): string {
-  if (!webhookUrl) throw new Error('WEBHOOK_URL_18XX is undefined');
+export function configurationMessage(chatId: number, baseUrl: string): string {
+  if (!baseUrl) throw new Error('Base URL is undefined');
+
+  const webhookUrl = `${baseUrl}/send-notifications/${chatId.toString()}`;
 
   return `Use these values on [18xx.games profile page](https://18xx.games/profile):
 
 *Turn/Message Notifications*: Webhook
 *Webhook*: Custom
-*Webhook URL*: \`${webhookUrl}${chatId.toString()}\`
+*Webhook URL*: \`${webhookUrl}\`
 *Webhook User ID*: Type anything here, maybe "Hi"`;
 }
 

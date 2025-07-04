@@ -15,14 +15,14 @@ export class Bot {
     });
   }
 
-  async processUpdate(update: Update, webhookUrl: string) {
+  async processUpdate(update: Update, baseUrl: string) {
     if (
       isMessageUpdate(update) &&
       (<TypegramMessage.TextMessage>update.message).text === '/start'
     ) {
       const chatId = update.message.chat.id;
 
-      await this.client.sendMessage(chatId, configurationMessage(chatId, webhookUrl), {
+      await this.client.sendMessage(chatId, configurationMessage(chatId, baseUrl), {
         parseMode: ParseMode.Markdown,
       });
     }

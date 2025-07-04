@@ -18,7 +18,6 @@ describe('handleProcessUpdates', () => {
     
     mockEnv = {
       TELEGRAM_BOT_18XX: 'test-bot-token',
-      WEBHOOK_URL_18XX: 'https://test.com/send-notifications/',
     };
   });
 
@@ -48,7 +47,7 @@ describe('handleProcessUpdates', () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toBe('OK');
     expect(getBotInstance).toHaveBeenCalledWith(mockEnv);
-    expect(mockBot.processUpdate).toHaveBeenCalledWith(update, mockEnv.WEBHOOK_URL_18XX);
+    expect(mockBot.processUpdate).toHaveBeenCalledWith(update, 'https://test.com');
   });
 
   it('should handle errors in process updates', async () => {

@@ -3,7 +3,6 @@ import { handleSendNotifications } from './handlers/send_notifications';
 
 export interface Env {
   TELEGRAM_BOT_18XX: string;
-  WEBHOOK_URL_18XX: string;
 }
 
 export default {

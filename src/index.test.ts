@@ -45,7 +45,6 @@ describe('Cloudflare Workers Handler', () => {
     
     mockEnv = {
       TELEGRAM_BOT_18XX: 'test-bot-token',
-      WEBHOOK_URL_18XX: 'https://test.com/send-notifications/',
     };
     
     mockExecutionContext = {};

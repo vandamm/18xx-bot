@@ -12,6 +12,26 @@ global.Request = class MockRequest {
   }
 };
 
+global.URL = class MockURL {
+  constructor(url) {
+    if (url.startsWith('http')) {
+      const parsed = new (require('url').URL)(url);
+      this.protocol = parsed.protocol;
+      this.host = parsed.host;
+      this.pathname = parsed.pathname;
+      this.search = parsed.search;
+      this.searchParams = parsed.searchParams;
+    } else {
+      // Fallback for invalid URLs
+      this.protocol = 'https:';
+      this.host = 'test.com';
+      this.pathname = url;
+      this.search = '';
+      this.searchParams = new URLSearchParams();
+    }
+  }
+};
+
 global.Response = class MockResponse {
   constructor(body, options = {}) {
     this.body = body;
@@ -24,14 +44,7 @@ global.Response = class MockResponse {
   }
 };
 
-global.URL = class MockURL {
-  constructor(url) {
-    const parsed = new (require('url').URL)(url);
-    this.pathname = parsed.pathname;
-    this.search = parsed.search;
-    this.searchParams = parsed.searchParams;
-  }
-};
+
 
 global.ExecutionContext = class MockExecutionContext {};
 

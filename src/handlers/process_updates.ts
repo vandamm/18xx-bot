@@ -6,7 +6,11 @@ export async function handleProcessUpdates(request: Request, env: any): Promise<
     const update = await request.json() as Update;
     const bot = await getBotInstance(env);
 
-    await bot.processUpdate(update, env.WEBHOOK_URL_18XX);
+    // Dynamically determine the base URL from the request
+    const url = new URL(request.url);
+    const baseUrl = `${url.protocol}//${url.host}`;
+
+    await bot.processUpdate(update, baseUrl);
 
     return new Response('OK', { status: 200 });
   } catch (e) {
