@@ -1,12 +1,12 @@
 import { Update } from 'typegram';
-import { getBotInstance } from '../lib/bot_repository';
+import { getBotInstanceById } from '../lib/bot_repository';
+import { Env } from '../types';
 
-export async function handleProcessUpdates(request: Request, env: any): Promise<Response> {
+export async function handleMultiBotProcessUpdates(request: Request, env: Env, botId: string): Promise<Response> {
   try {
     const update = await request.json() as Update;
-    const bot = await getBotInstance(env);
+    const bot = await getBotInstanceById(botId, env);
 
-    // Dynamically determine the base URL from the request
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
 

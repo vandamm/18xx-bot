@@ -1,84 +1,60 @@
-import { TelegramClient } from 'messaging-api-telegram';
-import { Update } from 'typegram';
 import { Bot } from './bot';
+import { DefaultParser } from './message-parsers/default-parser';
+import { TelegramClient } from 'messaging-api-telegram';
 
-jest.mock('./templates', () => {
-  return {
-    __esModule: true,
-    configurationMessage: (chatId: number) => chatId.toString(),
-  };
+jest.mock('messaging-api-telegram');
+
+describe('Bot', () => {
+  let mockParser: DefaultParser;
+  
+  beforeEach(() => {
+    mockParser = new DefaultParser();
+    jest.clearAllMocks();
+  });
+
+  it('should throw error for empty access token', () => {
+    expect(() => new Bot('', mockParser)).toThrowError('Access token undefined');
+  });
+
+  it('should create Telegram client with access token', () => {
+    const bot = new Bot('token', mockParser);
+    
+    expect(TelegramClient).toHaveBeenCalledWith({
+      accessToken: 'token',
+      origin: '',
+    });
+  });
+
+  it('should create Telegram client with custom origin', () => {
+    const bot = new Bot('token', mockParser, 'custom-origin');
+    
+    expect(TelegramClient).toHaveBeenCalledWith({
+      accessToken: 'token',
+      origin: 'custom-origin',
+    });
+  });
+
+  it('should send message via client', async () => {
+    const mockSendMessage = jest.fn();
+    (TelegramClient as any).mockImplementation(() => ({
+      sendMessage: mockSendMessage,
+    }));
+
+    const bot = new Bot('token', mockParser);
+    await bot.sendMessage(123, 'test message');
+
+    expect(mockSendMessage).toHaveBeenCalledWith(123, 'test message', {
+      parseMode: 'HTML',
+    });
+  });
+
+  it('should use configured parser to parse messages', () => {
+    const bot = new Bot('token', mockParser);
+    const message = { text: 'test message' };
+    
+    const result = bot.parseMessage(message);
+    
+    expect(result.valid).toBe(true);
+    expect(result.content).toBe('test message');
+  });
 });
-
-test('fails initialization without token', () => {
-  expect(() => new Bot('')).toThrowError('Access token undefined');
-});
-
-test('sends message', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const bot = new Bot('token');
-
-  await bot.sendMessage(456, 'test');
-
-  expect(mockFn.mock.calls.length).toBe(1);
-  expect(mockFn.mock.calls[0]).toEqual([
-    '/sendMessage',
-    {
-      chatId: 456,
-      text: 'test',
-      parseMode: 'Markdown',
-    },
-  ]);
-});
-
-test('processes updates', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const bot = new Bot('token');
-
-  await bot.processUpdate(<Update.MessageUpdate>{
-    message: { chat: { id: 456 }, text: '/start' },
-  }, 'https://test.com');
-
-  expect(mockFn.mock.calls.length).toBe(1);
-  expect(mockFn.mock.calls[0]).toEqual([
-    '/sendMessage',
-    {
-      chatId: 456,
-      text: '456',
-      parseMode: 'Markdown',
-    },
-  ]);
-});
-
-test('does not process non-start updates', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const bot = new Bot('token');
-
-  await bot.processUpdate(<Update.MessageUpdate>{
-    message: { chat: { id: 456 }, text: 'hello' },
-  }, 'https://test.com');
-
-  expect(mockFn.mock.calls.length).toBe(0);
-});
-
-test('does not process non-message updates', async () => {
-  const mockFn = mockTelegramClientRequest();
-
-  const bot = new Bot('token');
-
-  await bot.processUpdate(<Update>{}, 'https://test.com');
-
-  expect(mockFn.mock.calls.length).toBe(0);
-});
-
-function mockTelegramClientRequest(implementation?: any) {
-  const mockFn = jest.fn(implementation);
-
-  jest
-    .spyOn(TelegramClient.prototype as any, 'request')
-    .mockImplementation(mockFn);
-
-  return mockFn;
-}

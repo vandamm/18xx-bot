@@ -7,18 +7,22 @@ compatibility_flags = ["nodejs_compat"]
 enabled = true
 head_sampling_rate = 1
 
+# KV namespace for storing bot configurations
+[[kv_namespaces]]
+binding = "BOT_CONFIG"
+id = "bot_config_production"
+preview_id = "bot_config_preview"
+
 # Test environment using secondary domain
 [env.test]
 routes = [
-  { pattern = "test.18xx-bot.vansach.me", custom_domain = true }
+  { pattern = "test.18xx-bot.vansach.me", custom_domain = true },
+  { pattern = "test.ping.vansach.me", custom_domain = true }
 ]
 
 # Production environment using main domain
 [env.production]
 routes = [
-  { pattern = "18xx-bot.vansach.me", custom_domain = true }
+  { pattern = "18xx-bot.vansach.me", custom_domain = true },
+  { pattern = "ping.vansach.me", custom_domain = true }
 ]
-
-# Add your secrets via: wrangler secret put TELEGRAM_BOT_18XX
-# For test: wrangler secret put TELEGRAM_BOT_18XX --env test
-# For prod: wrangler secret put TELEGRAM_BOT_18XX --env production 
