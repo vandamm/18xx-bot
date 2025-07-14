@@ -9,14 +9,9 @@ export async function getBotInstanceById(botId: string, env: Env): Promise<Bot> 
     return botInstances.get(botId)!;
   }
 
-  const botConfigJson = await env.BOT_CONFIG.get(botId);
-  if (!botConfigJson) {
+  const config: BotConfig = await env.BOT_CONFIG.get(botId, {type: 'json'});
+  if (!config) {
     throw new Error(`Bot configuration not found for ID: ${botId}`);
-  }
-
-  const config: BotConfig = JSON.parse(botConfigJson);
-  if (!config.token) {
-    throw new Error(`Bot token not found for ID: ${botId}`);
   }
 
   const parser = parserRegistry.get(config.parser || 'default');
