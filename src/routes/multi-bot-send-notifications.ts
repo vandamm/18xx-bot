@@ -1,20 +1,35 @@
 import { getBotInstanceById } from '../lib/bot_repository';
 import { notificationMessage } from '../lib/templates';
 import { Env } from '../types';
+import { ParsedMessage } from '../lib/message-parsers/types';
 
-export async function handleMultiBotSendNotifications(request: Request, env: Env, botId: string, chatId: number): Promise<Response> {
-  if (isNaN(chatId)) {
-    return new Response('Invalid input', { status: 400 });
+function resolveChatId(routeChatId?: number, parsedMessage?: ParsedMessage): number|undefined {
+  if (routeChatId && !isNaN(routeChatId)) {
+    return routeChatId;
   }
 
+  if (parsedMessage?.metadata?.userId) {
+    const userIdFromMessage = parseInt(parsedMessage.metadata.userId);
+    if (!isNaN(userIdFromMessage)) {
+      return userIdFromMessage;
+    }
+  }
+
+  return undefined;
+}
+
+export async function handleMultiBotSendNotifications(request: Request, env: Env, botId: string, chatId?: number): Promise<Response> {
   try {
-    const body = await request.json();
     const bot = await getBotInstanceById(botId, env);
-    
+    if (!bot) {
+      return new Response('Not found', { status: 404 });
+    }
+
+    const body = await request.json();
     const parsedMessage = bot.parseMessage(body as object);
 
     console.log({
-      event: 'Notification',
+      message: 'Notification',
       botId,
       chatId,
       body,
@@ -25,15 +40,26 @@ export async function handleMultiBotSendNotifications(request: Request, env: Env
       return new Response('Message has invalid format', { status: 422 });
     }
 
+    const targetChatId = resolveChatId(chatId, parsedMessage);
+    if (!targetChatId) {
+      return new Response('Invalid chat ID', { status: 400 });
+    }
+
     const messageText = parsedMessage.link 
       ? notificationMessage(parsedMessage.content, parsedMessage.link)
       : parsedMessage.content;
 
-    await bot.sendMessage(chatId, messageText);
+    await bot.sendMessage(targetChatId, messageText);
 
     return new Response('OK', { status: 200 });
   } catch (e) {
     const error = e as Error;
-    return new Response(error.message, { status: 500 });
+    
+    console.error({
+      message: 'Error sending notification',
+      error,
+    });
+
+    return new Response('Internal server error', { status: 500 });
   }
 } 

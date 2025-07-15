@@ -4,14 +4,26 @@ import { parserRegistry } from './message-parsers/registry';
 
 const botInstances = new Map<string, Bot>();
 
-export async function getBotInstanceById(botId: string, env: Env): Promise<Bot> {
+export async function getBotInstanceById(botId: string, env: Env): Promise<Bot|undefined> {
   if (botInstances.has(botId)) {
     return botInstances.get(botId)!;
   }
 
   const config: BotConfig = await env.BOT_CONFIG.get(botId, {type: 'json'});
   if (!config) {
-    throw new Error(`Bot configuration not found for ID: ${botId}`);
+    console.error({
+      message: 'Bot configuration not found',
+      botId,
+    });
+    return undefined;
+  }
+
+  if (!config.token) {  
+    console.error({
+      message: 'Bot token not found',
+      botId,
+    });
+    return undefined;
   }
 
   const parser = parserRegistry.get(config.parser || 'default');

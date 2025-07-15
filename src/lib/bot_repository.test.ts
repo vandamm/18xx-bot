@@ -19,33 +19,31 @@ describe('Bot Repository', () => {
         updatedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      mockEnv.BOT_CONFIG.get.mockResolvedValue(JSON.stringify(mockBotConfig));
+      mockEnv.BOT_CONFIG.get.mockResolvedValue(mockBotConfig);
 
-      const bot = await getBotInstanceById('test-bot', mockEnv);
+      const bot = await getBotInstanceById('test-bot-1', mockEnv);
 
       expect(bot).toBeDefined();
-      expect(mockEnv.BOT_CONFIG.get).toHaveBeenCalledWith('test-bot');
+      expect(mockEnv.BOT_CONFIG.get).toHaveBeenCalledWith('test-bot-1', {type: 'json'});
     });
 
-    it('should throw error if bot configuration not found', async () => {
+    it('should return undefined if bot configuration not found', async () => {
       mockEnv.BOT_CONFIG.get.mockResolvedValue(null);
 
-      await expect(getBotInstanceById('nonexistent', mockEnv)).rejects.toThrow(
-        'Bot configuration not found for ID: nonexistent'
-      );
+      const result = await getBotInstanceById('nonexistent', mockEnv);
+      expect(result).toBeUndefined();
     });
 
-    it('should throw error if bot configuration has no token', async () => {
+    it('should return undefined if bot configuration has no token', async () => {
       const mockBotConfig = {
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      mockEnv.BOT_CONFIG.get.mockResolvedValue(JSON.stringify(mockBotConfig));
+      mockEnv.BOT_CONFIG.get.mockResolvedValue(mockBotConfig);
 
-      await expect(getBotInstanceById('invalid-bot', mockEnv)).rejects.toThrow(
-        'Bot token not found for ID: invalid-bot'
-      );
+      const result = await getBotInstanceById('invalid-bot', mockEnv);
+      expect(result).toBeUndefined();
     });
 
     it('should cache bot instances', async () => {
@@ -55,10 +53,10 @@ describe('Bot Repository', () => {
         updatedAt: '2024-01-01T00:00:00.000Z',
       };
 
-      mockEnv.BOT_CONFIG.get.mockResolvedValue(JSON.stringify(mockBotConfig));
+      mockEnv.BOT_CONFIG.get.mockResolvedValue(mockBotConfig);
 
-      const bot1 = await getBotInstanceById('test-bot', mockEnv);
-      const bot2 = await getBotInstanceById('test-bot', mockEnv);
+      const bot1 = await getBotInstanceById('cache-test-bot', mockEnv);
+      const bot2 = await getBotInstanceById('cache-test-bot', mockEnv);
 
       expect(bot1).toBe(bot2);
       expect(mockEnv.BOT_CONFIG.get).toHaveBeenCalledTimes(1);

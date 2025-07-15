@@ -52,3 +52,7 @@ global.ExecutionContext = class MockExecutionContext {};
 if (!global.process) {
   global.process = { env: {} };
 } 
+
+// Mock console.log to suppress output during tests
+jest.spyOn(console, 'log').mockImplementation(() => {}); 
+jest.spyOn(console, 'error').mockImplementation(() => {}); 

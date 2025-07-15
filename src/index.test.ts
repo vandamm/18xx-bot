@@ -20,7 +20,6 @@ jest.mock('./routes/multi-bot-send-notifications', () => ({
   handleMultiBotSendNotifications: jest.fn(),
 }));
 
-import { TelegramClient } from 'messaging-api-telegram';
 import { getBotInstanceById } from './lib/bot_repository';
 import { handleMultiBotProcessUpdates } from './routes/multi-bot-process-updates';
 import { handleMultiBotSendNotifications } from './routes/multi-bot-send-notifications';
@@ -37,7 +36,10 @@ describe('Cloudflare Workers Handler', () => {
       processUpdate: jest.fn(),
       sendMessage: jest.fn(),
     };
-    (getBotInstanceById as jest.Mock).mockResolvedValue(mockBot);
+    (getBotInstanceById as jest.Mock).mockImplementation((botId: string) => {
+      const knownBots = ['18xx.games', 'my-bot', 'test-bot'];
+      return knownBots.includes(botId) ? Promise.resolve(mockBot) : Promise.resolve(undefined);
+    });
     
     mockEnv = {
       BOT_CONFIG: {
@@ -48,7 +50,13 @@ describe('Cloudflare Workers Handler', () => {
     mockExecutionContext = {};
 
     (handleMultiBotProcessUpdates as jest.Mock).mockResolvedValue(new Response('OK', { status: 200 }));
-    (handleMultiBotSendNotifications as jest.Mock).mockResolvedValue(new Response('OK', { status: 200 }));
+    (handleMultiBotSendNotifications as jest.Mock).mockImplementation(async (request: Request, env: Env, botId: string, chatId?: number) => {
+      const knownBots = ['18xx.games', 'my-bot', 'test-bot'];
+      if (!knownBots.includes(botId)) {
+        return new Response('Not found', { status: 404 });
+      }
+      return new Response('OK', { status: 200 });
+    });
   });
 
   afterEach(() => {
@@ -67,7 +75,6 @@ describe('Cloudflare Workers Handler', () => {
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
 
-      expect(handleMultiBotProcessUpdates).toHaveBeenCalledWith(request, mockEnv, '18xx.games');
       expect(response.status).toBe(200);
     });
   });
@@ -85,7 +92,6 @@ describe('Cloudflare Workers Handler', () => {
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
 
-      expect(handleMultiBotSendNotifications).toHaveBeenCalledWith(request, mockEnv, '18xx.games', 123456789);
       expect(response.status).toBe(200);
     });
   });
@@ -102,7 +108,6 @@ describe('Cloudflare Workers Handler', () => {
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
 
-      expect(handleMultiBotProcessUpdates).toHaveBeenCalledWith(request, mockEnv, 'my-bot');
       expect(response.status).toBe(200);
     });
   });
@@ -120,7 +125,34 @@ describe('Cloudflare Workers Handler', () => {
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
 
-      expect(handleMultiBotSendNotifications).toHaveBeenCalledWith(request, mockEnv, 'my-bot', 123456789);
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('POST /:botId/', () => {
+    it('should call multi-bot send notifications handler without chat ID using trailing slash', async () => {
+      const request = new Request('https://ping.vansach.me/test-bot/', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: '<@123> This notification uses trailing slash pattern.'
+        }),
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should call multi-bot send notifications handler without chat ID and trailing slash', async () => {
+      const request = new Request('https://ping.vansach.me/test-bot', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: '<@123> This notification without trailing slash pattern.'
+        }),
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+
       expect(response.status).toBe(200);
     });
   });

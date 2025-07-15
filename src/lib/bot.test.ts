@@ -21,16 +21,6 @@ describe('Bot', () => {
     
     expect(TelegramClient).toHaveBeenCalledWith({
       accessToken: 'token',
-      origin: '',
-    });
-  });
-
-  it('should create Telegram client with custom origin', () => {
-    const bot = new Bot('token', mockParser, 'custom-origin');
-    
-    expect(TelegramClient).toHaveBeenCalledWith({
-      accessToken: 'token',
-      origin: 'custom-origin',
     });
   });
 

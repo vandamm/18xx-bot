@@ -4,8 +4,11 @@ interface Incoming18xxMessage {
   text: string;
 }
 
-const MESSAGE_PATTERN =
+const GAME_MESSAGE_PATTERN =
   /<@(?<userId>.*)> (?<text>.+) in (?<title>.+) "(?<description>.*)" \((?<round>.*) (?<turn>\d+)\)\n(?<link>.*)/;
+
+const NOTIFICATION_MESSAGE_PATTERN =
+  /<@(?<userId>\d+)> (?<text>.*from 18xx\.games\.?)$/;
 
 export class EighteenxxParser implements MessageParser {
   name = '18xx';
@@ -18,18 +21,28 @@ export class EighteenxxParser implements MessageParser {
       };
     }
 
-    const match = message.text.match(MESSAGE_PATTERN);
-
-    if (!match) {
-      return {
-        content: 'Message format not recognized',
-        valid: false
-      };
+    // Try to match the complex game message format first
+    const gameMatch = message.text.match(GAME_MESSAGE_PATTERN);
+    if (gameMatch) {
+      return this.parseGameMessage(gameMatch, message);
     }
 
+    // Try to match the simple notification format
+    const notificationMatch = message.text.match(NOTIFICATION_MESSAGE_PATTERN);
+    if (notificationMatch) {
+      return this.parseNotificationMessage(notificationMatch, message);
+    }
+
+    return {
+      content: 'Message format not recognized',
+      valid: false
+    };
+  }
+
+  private parseGameMessage(match: RegExpMatchArray, originalMessage: object): ParsedMessage {
     const { userId, text, title, description, round, turn, link } = match.groups!;
 
-    const content = this.formatMessage({
+    const content = this.formatGameMessage({
       text,
       title,
       description,
@@ -48,7 +61,23 @@ export class EighteenxxParser implements MessageParser {
         description,
         round,
         turn: parseInt(turn),
-        originalMessage: message
+        messageType: 'game',
+        originalMessage
+      }
+    };
+  }
+
+  private parseNotificationMessage(match: RegExpMatchArray, originalMessage: object): ParsedMessage {
+    const { userId, text } = match.groups!;
+
+    return {
+      content: text,
+      valid: true,
+      metadata: {
+        userId,
+        text,
+        messageType: 'notification',
+        originalMessage
       }
     };
   }
@@ -57,7 +86,7 @@ export class EighteenxxParser implements MessageParser {
     return message && typeof message.text === 'string';
   }
 
-  private formatMessage(data: {
+  private formatGameMessage(data: {
     text: string;
     title: string;
     description: string;

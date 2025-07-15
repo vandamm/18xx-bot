@@ -1,6 +1,12 @@
 import { handleMultiBotProcessUpdates } from './multi-bot-process-updates';
 
+jest.mock('../lib/bot_repository');
+
+import { getBotInstanceById } from '../lib/bot_repository';
+
 describe('handleMultiBotProcessUpdates', () => {
+  const mockGetBotInstanceById = getBotInstanceById as jest.MockedFunction<typeof getBotInstanceById>;
+  
   const mockEnv = {
     TELEGRAM_BOT_18XX: 'test-token',
     BOT_CONFIG: {
@@ -32,15 +38,7 @@ describe('handleMultiBotProcessUpdates', () => {
       processUpdate: jest.fn(),
     };
 
-    mockEnv.BOT_CONFIG.get.mockResolvedValue(JSON.stringify({
-      token: 'test-bot-token',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      updatedAt: '2024-01-01T00:00:00.000Z',
-    }));
-
-    jest.mock('../lib/bot_repository', () => ({
-      getBotInstanceById: jest.fn().mockResolvedValue(mockBot),
-    }));
+    mockGetBotInstanceById.mockResolvedValue(mockBot as any);
 
     const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, '18xx.games');
 
@@ -57,7 +55,7 @@ describe('handleMultiBotProcessUpdates', () => {
     const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, '18xx.games');
 
     expect(response.status).toBe(500);
-    expect(await response.text()).toBe('Test error');
+    expect(await response.text()).toBe('Internal server error');
   });
 
   it('should handle bot not found', async () => {
@@ -66,12 +64,12 @@ describe('handleMultiBotProcessUpdates', () => {
       json: jest.fn().mockResolvedValue({}),
     } as any;
 
-    mockEnv.BOT_CONFIG.get.mockResolvedValue(null);
+    mockGetBotInstanceById.mockRejectedValue(new Error('Bot configuration not found for ID: nonexistent'));
 
     const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, 'nonexistent');
 
     expect(response.status).toBe(500);
-    expect(await response.text()).toBe('Bot configuration not found for ID: nonexistent');
+    expect(await response.text()).toBe('Internal server error');
   });
 
   it('should handle invalid bot configuration', async () => {
@@ -80,15 +78,12 @@ describe('handleMultiBotProcessUpdates', () => {
       json: jest.fn().mockResolvedValue({}),
     } as any;
 
-    mockEnv.BOT_CONFIG.get.mockResolvedValue(JSON.stringify({
-      createdAt: '2024-01-01T00:00:00.000Z',
-      updatedAt: '2024-01-01T00:00:00.000Z',
-    }));
+    mockGetBotInstanceById.mockRejectedValue(new Error('Bot token not found for ID: invalid'));
 
     const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, 'invalid');
 
     expect(response.status).toBe(500);
-    expect(await response.text()).toBe('Bot token not found for ID: invalid');
+    expect(await response.text()).toBe('Internal server error');
   });
 
   it('should construct correct base URL', async () => {
@@ -111,15 +106,7 @@ describe('handleMultiBotProcessUpdates', () => {
       processUpdate: jest.fn(),
     };
 
-    mockEnv.BOT_CONFIG.get.mockResolvedValue(JSON.stringify({
-      token: 'test-bot-token',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      updatedAt: '2024-01-01T00:00:00.000Z',
-    }));
-
-    jest.mock('../lib/bot_repository', () => ({
-      getBotInstanceById: jest.fn().mockResolvedValue(mockBot),
-    }));
+    mockGetBotInstanceById.mockResolvedValue(mockBot as any);
 
     await handleMultiBotProcessUpdates(mockRequest, mockEnv, '18xx.games');
 

@@ -4,9 +4,12 @@ import { Env } from '../types';
 
 export async function handleMultiBotProcessUpdates(request: Request, env: Env, botId: string): Promise<Response> {
   try {
-    const update = await request.json() as Update;
     const bot = await getBotInstanceById(botId, env);
+    if (!bot) {
+      return new Response('Not found', { status: 404 });
+    }
 
+    const update = await request.json() as Update;    
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
 
@@ -15,6 +18,11 @@ export async function handleMultiBotProcessUpdates(request: Request, env: Env, b
     return new Response('OK', { status: 200 });
   } catch (e) {
     const error = e as Error;
-    return new Response(error.message, { status: 500 });
+    console.error({
+      message: 'Error processing updates',
+      error,
+    });
+
+    return new Response('Internal server error', { status: 500 });
   }
 } 

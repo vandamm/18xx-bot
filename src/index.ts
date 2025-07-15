@@ -9,7 +9,7 @@ export default {
     const url = new URL(request.url);
 
     console.log({
-      event: 'Incoming request',
+      message: 'Incoming request',
       request,
     })
     
@@ -31,10 +31,10 @@ export default {
         return handleMultiBotProcessUpdates(request, env, botId);
       }
       
-      const newBotNotificationsMatch = url.pathname.match(/^\/([^\/]+)\/(.+)$/);
-      if (newBotNotificationsMatch && !url.pathname.endsWith('/process-updates')) {
+      const newBotNotificationsMatch = url.pathname.match(/^\/([^\/]+)\/?(.*)$/);
+      if (newBotNotificationsMatch) {
         const botId = newBotNotificationsMatch[1];
-        const chatId = parseInt(newBotNotificationsMatch[2]);
+        const chatId = newBotNotificationsMatch[2] ? parseInt(newBotNotificationsMatch[2]) : undefined;
         return handleMultiBotSendNotifications(request, env, botId, chatId);
       }
     }
