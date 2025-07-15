@@ -57,7 +57,10 @@ export async function handleMultiBotSendNotifications(request: Request, env: Env
     
     console.error({
       message: 'Error sending notification',
-      error,
+      chatId,
+      botId,
+      error: error.message,
+      stack: error.stack,
     });
 
     return new Response('Internal server error', { status: 500 });
