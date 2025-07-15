@@ -7,6 +7,11 @@ const LEGACY_BOT_ID = '18xx.games';
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+
+    console.log({
+      event: 'Incoming request',
+      request,
+    })
     
     if (request.method === 'POST') {
       const legacyProcessUpdatesMatch = url.pathname === '/process-updates';

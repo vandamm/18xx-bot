@@ -13,6 +13,14 @@ export async function handleMultiBotSendNotifications(request: Request, env: Env
     
     const parsedMessage = bot.parseMessage(body as object);
 
+    console.log({
+      event: 'Notification',
+      botId,
+      chatId,
+      body,
+      parsedMessage,
+    })
+
     if (!parsedMessage.valid) {
       return new Response('Message has invalid format', { status: 422 });
     }
