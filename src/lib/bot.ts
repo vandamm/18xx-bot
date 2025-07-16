@@ -1,8 +1,7 @@
-import { Update, Message as TypegramMessage } from 'typegram';
-import { TelegramClient } from 'messaging-api-telegram';
-import { ParseMode, Message } from 'messaging-api-telegram/dist/TelegramTypes';
+import { Update, Message } from 'typegram';
 import { configurationMessage } from './templates';
 import { MessageParser } from './message-parsers/types';
+import { TelegramClient } from './telegram_client';
 
 export class Bot {
   private client: TelegramClient;
@@ -11,20 +10,12 @@ export class Bot {
   constructor(accessToken: string, parser: MessageParser) {
     if (!accessToken) throw new Error('Access token undefined');
 
-    this.client = new TelegramClient({
-      accessToken,
-    });
-
+    this.client = new TelegramClient(accessToken);
     this.parser = parser;
   }
 
   async processUpdate(update: Update, baseUrl: string) {
-    if (
-      isMessageUpdate(update) &&
-      'text' in update.message &&
-      update.message.text &&
-      update.message.text.toLowerCase() === '/configure'
-    ) {
+    if (isStartMessage(update)) {
       await this.sendMessage(
         update.message.chat.id,
         configurationMessage(update.message.chat.id, baseUrl)
@@ -34,7 +25,7 @@ export class Bot {
 
   async sendMessage(chatId: number, text: string): Promise<Message> {
     return await this.client.sendMessage(chatId, text, {
-      parseMode: ParseMode.HTML,
+      parseMode: 'HTML',
     });
   }
 
@@ -43,6 +34,9 @@ export class Bot {
   }
 }
 
-function isMessageUpdate(update: Update): update is Update.MessageUpdate {
-  return 'message' in update;
+function isStartMessage(update: Update): update is Update.MessageUpdate {
+  return 'message' in update &&
+    'text' in update.message &&
+    update.message.text &&
+    update.message.text.toLowerCase() === '/start';
 }

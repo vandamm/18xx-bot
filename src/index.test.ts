@@ -1,13 +1,5 @@
 import { Env } from './types';
 
-jest.mock('messaging-api-telegram', () => {
-  return {
-    TelegramClient: jest.fn().mockImplementation(() => ({
-      sendMessage: jest.fn(),
-    })),
-  };
-});
-
 jest.mock('./lib/bot_repository', () => ({
   getBotInstanceById: jest.fn(),
 }));
@@ -20,11 +12,10 @@ jest.mock('./routes/multi-bot-send-notifications', () => ({
   handleMultiBotSendNotifications: jest.fn(),
 }));
 
+import worker from './index';
 import { getBotInstanceById } from './lib/bot_repository';
 import { handleMultiBotProcessUpdates } from './routes/multi-bot-process-updates';
 import { handleMultiBotSendNotifications } from './routes/multi-bot-send-notifications';
-
-const worker = require('./index').default;
 
 describe('Cloudflare Workers Handler', () => {
   let mockBot: any;
@@ -32,6 +23,8 @@ describe('Cloudflare Workers Handler', () => {
   let mockExecutionContext: any;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     mockBot = {
       processUpdate: jest.fn(),
       sendMessage: jest.fn(),
@@ -59,10 +52,6 @@ describe('Cloudflare Workers Handler', () => {
     });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('POST /process-updates', () => {
     it('should call multi-bot handler with legacy bot ID', async () => {
       const request = new Request('https://ping.vansach.me/process-updates', {
@@ -84,9 +73,7 @@ describe('Cloudflare Workers Handler', () => {
       const request = new Request('https://ping.vansach.me/send-notifications/123456789', {
         method: 'POST',
         body: JSON.stringify({
-          game: '1830',
-          action: 'turn_completed',
-          player: 'John',
+          text: 'Test notification',
         }),
       });
 
@@ -117,9 +104,7 @@ describe('Cloudflare Workers Handler', () => {
       const request = new Request('https://ping.vansach.me/my-bot/123456789', {
         method: 'POST',
         body: JSON.stringify({
-          game: '1830',
-          action: 'turn_completed',
-          player: 'John',
+          text: 'Test notification',
         }),
       });
 

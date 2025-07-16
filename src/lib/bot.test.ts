@@ -1,50 +1,28 @@
 import { Bot } from './bot';
 import { DefaultParser } from './message-parsers/default-parser';
-import { TelegramClient } from 'messaging-api-telegram';
-
-jest.mock('messaging-api-telegram');
 
 describe('Bot', () => {
-  let mockParser: DefaultParser;
-  
+  let bot: Bot;
+  let parser: DefaultParser;
+
   beforeEach(() => {
-    mockParser = new DefaultParser();
-    jest.clearAllMocks();
+    parser = new DefaultParser();
+    bot = new Bot('test-token', parser);
   });
 
-  it('should throw error for empty access token', () => {
-    expect(() => new Bot('', mockParser)).toThrowError('Access token undefined');
+  it('should create bot instance', () => {
+    expect(bot).toBeInstanceOf(Bot);
   });
 
-  it('should create Telegram client with access token', () => {
-    const bot = new Bot('token', mockParser);
-    
-    expect(TelegramClient).toHaveBeenCalledWith({
-      accessToken: 'token',
-    });
+  it('should throw error if no access token provided', () => {
+    expect(() => new Bot('', parser)).toThrow('Access token undefined');
   });
 
-  it('should send message via client', async () => {
-    const mockSendMessage = jest.fn();
-    (TelegramClient as any).mockImplementation(() => ({
-      sendMessage: mockSendMessage,
-    }));
-
-    const bot = new Bot('token', mockParser);
-    await bot.sendMessage(123, 'test message');
-
-    expect(mockSendMessage).toHaveBeenCalledWith(123, 'test message', {
-      parseMode: 'HTML',
-    });
-  });
-
-  it('should use configured parser to parse messages', () => {
-    const bot = new Bot('token', mockParser);
+  it('should parse message using provided parser', () => {
     const message = { text: 'test message' };
-    
     const result = bot.parseMessage(message);
-    
-    expect(result.valid).toBe(true);
+
     expect(result.content).toBe('test message');
+    expect(result.valid).toBe(true);
   });
 });
