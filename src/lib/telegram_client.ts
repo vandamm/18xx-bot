@@ -29,7 +29,7 @@ export class TelegramClient {
       throw new Error(`Telegram API error: ${response.status} ${response.statusText}`);
     }
 
-    const result = await response.json() as { ok: boolean; result: TelegramMessage };
+    const result = await response.json() as { ok: boolean; result: Message };
     if (!result.ok) {
       throw new Error('Telegram API request failed');
     }
