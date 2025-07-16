@@ -18,6 +18,16 @@ function resolveChatId(routeChatId?: number, parsedMessage?: ParsedMessage): num
   return undefined;
 }
 
+async function parseRequestBody(request: Request): Promise<object> {
+  try {
+    return await request.json();
+  } catch (error) {
+    // If JSON parsing fails, treat the entire body as plain text
+    const text = await request.text();
+    return { text };
+  }
+}
+
 export async function handleMultiBotSendNotifications(request: Request, env: Env, botId: string, chatId?: number): Promise<Response> {
   try {
     const bot = await getBotInstanceById(botId, env);
@@ -25,7 +35,7 @@ export async function handleMultiBotSendNotifications(request: Request, env: Env
       return new Response('Not found', { status: 404 });
     }
 
-    const body = await request.json();
+    const body = await parseRequestBody(request);
     const parsedMessage = bot.parseMessage(body as object);
 
     console.log({

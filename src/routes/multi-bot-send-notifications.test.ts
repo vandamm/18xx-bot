@@ -166,6 +166,32 @@ describe('handleMultiBotSendNotifications', () => {
     });
   });
 
+  describe('Plain text input handling', () => {
+    it('should handle plain text input when JSON parsing fails', async () => {
+      const mockRequest = {
+        json: jest.fn().mockRejectedValue(new Error('Unexpected token')),
+        text: jest.fn().mockResolvedValue('Test message!')
+      } as any;
+
+      const mockBot = {
+        sendMessage: jest.fn(),
+        parseMessage: jest.fn().mockReturnValue({
+          content: 'Test message!',
+          valid: true
+        })
+      } as any;
+
+      mockGetBotInstanceById.mockResolvedValue(mockBot);
+
+      const response = await handleMultiBotSendNotifications(mockRequest, mockEnv, '18xx.games', 123456789);
+
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe('OK');
+      expect(mockBot.parseMessage).toHaveBeenCalledWith({ text: 'Test message!' });
+      expect(mockBot.sendMessage).toHaveBeenCalledWith(123456789, 'Test message!');
+    });
+  });
+
   describe('Error handling', () => {
     it('should handle invalid message format', async () => {
       const mockRequest = {
