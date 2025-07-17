@@ -20,11 +20,19 @@ function resolveChatId(routeChatId?: number, parsedMessage?: ParsedMessage): num
 
 async function parseRequestBody(request: Request): Promise<object> {
   try {
-    return await request.json();
-  } catch (error) {
-    // If JSON parsing fails, treat the entire body as plain text
     const text = await request.text();
-    return { text };
+    if (!text.trim()) {
+      return {};
+    }
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      // If JSON parsing fails, treat the entire body as plain text
+      return { text };
+    }
+  } catch (error) {
+    // If we can't read the body at all, return empty object
+    return {};
   }
 }
 

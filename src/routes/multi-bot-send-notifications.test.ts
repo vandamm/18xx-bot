@@ -28,6 +28,7 @@ describe('handleMultiBotSendNotifications', () => {
 
       const mockRequest = {
         json: jest.fn().mockResolvedValue(mockMessageBody),
+        text: jest.fn().mockResolvedValue(JSON.stringify(mockMessageBody)),
       } as any;
 
       const mockBot = {
@@ -56,6 +57,7 @@ describe('handleMultiBotSendNotifications', () => {
     it('should handle invalid chat ID from route', async () => {
       const mockRequest = {
         json: jest.fn().mockResolvedValue({}),
+        text: jest.fn().mockResolvedValue('{}'),
       } as any;
 
       const mockBot = {
@@ -82,6 +84,7 @@ describe('handleMultiBotSendNotifications', () => {
 
       const mockRequest = {
         json: jest.fn().mockResolvedValue(mockMessageBody),
+        text: jest.fn().mockResolvedValue(JSON.stringify(mockMessageBody)),
       } as any;
 
       const mockBot = {
@@ -112,6 +115,7 @@ describe('handleMultiBotSendNotifications', () => {
 
       const mockRequest = {
         json: jest.fn().mockResolvedValue(mockMessageBody),
+        text: jest.fn().mockResolvedValue(JSON.stringify(mockMessageBody)),
       } as any;
 
       const mockBot = {
@@ -142,6 +146,7 @@ describe('handleMultiBotSendNotifications', () => {
 
       const mockRequest = {
         json: jest.fn().mockResolvedValue(mockMessageBody),
+        text: jest.fn().mockResolvedValue(JSON.stringify(mockMessageBody)),
       } as any;
 
       const mockBot = {
@@ -196,6 +201,7 @@ describe('handleMultiBotSendNotifications', () => {
     it('should handle invalid message format', async () => {
       const mockRequest = {
         json: jest.fn().mockResolvedValue({}),
+        text: jest.fn().mockResolvedValue('{}'),
       } as any;
 
       const mockBot = {
@@ -218,6 +224,7 @@ describe('handleMultiBotSendNotifications', () => {
     it('should handle missing chat ID when no metadata available', async () => {
       const mockRequest = {
         json: jest.fn().mockResolvedValue({}),
+        text: jest.fn().mockResolvedValue('{}'),
       } as any;
 
       const mockBot = {
@@ -239,6 +246,7 @@ describe('handleMultiBotSendNotifications', () => {
     it('should handle invalid user ID from message metadata', async () => {
       const mockRequest = {
         json: jest.fn().mockResolvedValue({}),
+        text: jest.fn().mockResolvedValue('{}'),
       } as any;
 
       const mockBot = {
@@ -262,6 +270,7 @@ describe('handleMultiBotSendNotifications', () => {
     it('should handle errors', async () => {
       const mockRequest = {
         json: jest.fn().mockRejectedValue(new Error('Test error')),
+        text: jest.fn().mockRejectedValue(new Error('Test error')),
       } as any;
 
       const response = await handleMultiBotSendNotifications(mockRequest, mockEnv, '18xx.games', 123456789);
