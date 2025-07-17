@@ -109,3 +109,6 @@ reports
 # AWS
 .aws-sam
 samconfig.toml
+
+# Cloudflare
+.wrangler

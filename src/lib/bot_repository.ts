@@ -1,18 +1,36 @@
 import { Bot } from './bot';
+import { Env, BotConfig } from '../types';
+import { parserRegistry } from './message-parsers/registry';
 
-const BOT_SECRET_NAME = 'TELEGRAM_BOT_18XX';
+const botInstances = new Map<string, Bot>();
 
-let instance: Bot;
-
-export async function getBotInstance(env: any): Promise<Bot> {
-  if (instance) return instance;
-
-  const secret = env[BOT_SECRET_NAME];
-  if (!secret) {
-    throw new Error(`Secret ${BOT_SECRET_NAME} not found in environment`);
+export async function getBotInstanceById(botId: string, env: Env): Promise<Bot|undefined> {
+  if (botInstances.has(botId)) {
+    return botInstances.get(botId)!;
   }
 
-  instance = new Bot(secret);
+  const config: BotConfig = await env.BOT_CONFIG.get(botId, {type: 'json'});
+  if (!config) {
+    console.error({
+      message: 'Bot configuration not found',
+      botId,
+    });
+    return undefined;
+  }
 
-  return instance;
+  if (!config.token) {  
+    console.error({
+      message: 'Bot token not found',
+      botId,
+    });
+    return undefined;
+  }
+
+  const parser = parserRegistry.get(config.parser || 'default');
+  const bot = new Bot(config.token, parser);
+  botInstances.set(botId, bot);
+
+  return bot;
 }
+
+

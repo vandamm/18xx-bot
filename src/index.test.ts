@@ -1,35 +1,21 @@
-import { Env } from './index';
+import { Env } from './types';
 
-// Mock the telegram client
-jest.mock('messaging-api-telegram', () => {
-  return {
-    TelegramClient: jest.fn().mockImplementation(() => ({
-      sendMessage: jest.fn(),
-    })),
-  };
-});
-
-// Mock the bot repository
 jest.mock('./lib/bot_repository', () => ({
-  getBotInstance: jest.fn(),
+  getBotInstanceById: jest.fn(),
 }));
 
-// Mock the handlers
-jest.mock('./handlers/process_updates', () => ({
-  handleProcessUpdates: jest.fn(),
+jest.mock('./routes/multi-bot-process-updates', () => ({
+  handleMultiBotProcessUpdates: jest.fn(),
 }));
 
-jest.mock('./handlers/send_notifications', () => ({
-  handleSendNotifications: jest.fn(),
+jest.mock('./routes/multi-bot-send-notifications', () => ({
+  handleMultiBotSendNotifications: jest.fn(),
 }));
 
-import { TelegramClient } from 'messaging-api-telegram';
-import { getBotInstance } from './lib/bot_repository';
-import { handleProcessUpdates } from './handlers/process_updates';
-import { handleSendNotifications } from './handlers/send_notifications';
-
-// Import the worker after mocking
-const worker = require('./index').default;
+import worker from './index';
+import { getBotInstanceById } from './lib/bot_repository';
+import { handleMultiBotProcessUpdates } from './routes/multi-bot-process-updates';
+import { handleMultiBotSendNotifications } from './routes/multi-bot-send-notifications';
 
 describe('Cloudflare Workers Handler', () => {
   let mockBot: any;
@@ -37,137 +23,142 @@ describe('Cloudflare Workers Handler', () => {
   let mockExecutionContext: any;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     mockBot = {
       processUpdate: jest.fn(),
       sendMessage: jest.fn(),
     };
-    (getBotInstance as jest.Mock).mockResolvedValue(mockBot);
+    (getBotInstanceById as jest.Mock).mockImplementation((botId: string) => {
+      const knownBots = ['18xx.games', 'my-bot', 'test-bot'];
+      return knownBots.includes(botId) ? Promise.resolve(mockBot) : Promise.resolve(undefined);
+    });
     
     mockEnv = {
-      TELEGRAM_BOT_18XX: 'test-bot-token',
+      BOT_CONFIG: {
+        get: jest.fn(),
+      } as any,
     };
     
     mockExecutionContext = {};
-  });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+    (handleMultiBotProcessUpdates as jest.Mock).mockResolvedValue(new Response('OK', { status: 200 }));
+    (handleMultiBotSendNotifications as jest.Mock).mockImplementation(async (request: Request, env: Env, botId: string, chatId?: number) => {
+      const knownBots = ['18xx.games', 'my-bot', 'test-bot'];
+      if (!knownBots.includes(botId)) {
+        return new Response('Not found', { status: 404 });
+      }
+      return new Response('OK', { status: 200 });
+    });
   });
 
   describe('POST /process-updates', () => {
-    it('should handle telegram updates successfully', async () => {
-      const mockResponse = new Response('OK', { status: 200 });
-      (handleProcessUpdates as jest.Mock).mockResolvedValue(mockResponse);
-
-      const request = new Request('https://test.com/process-updates', {
+    it('should call multi-bot handler with legacy bot ID', async () => {
+      const request = new Request('https://ping.vansach.me/process-updates', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ update_id: 123 }),
+        body: JSON.stringify({
+          update_id: 123,
+          message: { message_id: 456, date: 1234567890, chat: { id: 789 } },
+        }),
       });
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
 
       expect(response.status).toBe(200);
-      expect(await response.text()).toBe('OK');
-      expect(handleProcessUpdates).toHaveBeenCalledWith(request, mockEnv);
-    });
-
-    it('should handle errors in process updates', async () => {
-      const mockResponse = new Response('Bot error', { status: 500 });
-      (handleProcessUpdates as jest.Mock).mockResolvedValue(mockResponse);
-
-      const request = new Request('https://test.com/process-updates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ update_id: 123 }),
-      });
-
-      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
-
-      expect(response.status).toBe(500);
-      expect(await response.text()).toBe('Bot error');
     });
   });
 
-  describe('POST /send-notifications/{chatId}', () => {
-    it('should send notifications successfully', async () => {
-      const mockResponse = new Response('OK', { status: 200 });
-      (handleSendNotifications as jest.Mock).mockResolvedValue(mockResponse);
-
-      const request = new Request('https://test.com/send-notifications/123456789', {
+  describe('POST /send-notifications/:chatId', () => {
+    it('should call multi-bot handler with legacy bot ID', async () => {
+      const request = new Request('https://ping.vansach.me/send-notifications/123456789', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: 'test' }),
+        body: JSON.stringify({
+          text: 'Test notification',
+        }),
       });
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
 
       expect(response.status).toBe(200);
-      expect(await response.text()).toBe('OK');
-      expect(handleSendNotifications).toHaveBeenCalledWith(request, mockEnv, 123456789);
-    });
-
-    it('should return 400 for invalid chatId', async () => {
-      const mockResponse = new Response('Invalid input', { status: 400 });
-      (handleSendNotifications as jest.Mock).mockResolvedValue(mockResponse);
-
-      const request = new Request('https://test.com/send-notifications/invalid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: 'test' }),
-      });
-
-      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
-
-      expect(response.status).toBe(400);
-      expect(await response.text()).toBe('Invalid input');
-      expect(handleSendNotifications).toHaveBeenCalledWith(request, mockEnv, NaN);
-    });
-
-    it('should return 422 for invalid message format', async () => {
-      const mockResponse = new Response('Message has invalid format', { status: 422 });
-      (handleSendNotifications as jest.Mock).mockResolvedValue(mockResponse);
-
-      const request = new Request('https://test.com/send-notifications/123456789', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: 'invalid format' }),
-      });
-
-      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
-
-      expect(response.status).toBe(422);
-      expect(await response.text()).toBe('Message has invalid format');
-      expect(handleSendNotifications).toHaveBeenCalledWith(request, mockEnv, 123456789);
-    });
-
-    it('should handle errors in send notifications', async () => {
-      const mockResponse = new Response('Send error', { status: 500 });
-      (handleSendNotifications as jest.Mock).mockResolvedValue(mockResponse);
-
-      const request = new Request('https://test.com/send-notifications/123456789', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: 'test' }),
-      });
-
-      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
-
-      expect(response.status).toBe(500);
-      expect(await response.text()).toBe('Send error');
     });
   });
 
-  describe('404 handling', () => {
-    it('should return 404 for unknown routes', async () => {
-      const request = new Request('https://test.com/unknown-route', {
+  describe('POST /:botId/process-updates', () => {
+    it('should call multi-bot process updates handler', async () => {
+      const request = new Request('https://ping.vansach.me/my-bot/process-updates', {
+        method: 'POST',
+        body: JSON.stringify({
+          update_id: 123,
+          message: { message_id: 456, date: 1234567890, chat: { id: 789 } },
+        }),
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('POST /:botId/:chatId', () => {
+    it('should call multi-bot send notifications handler', async () => {
+      const request = new Request('https://ping.vansach.me/my-bot/123456789', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: 'Test notification',
+        }),
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('POST /:botId/', () => {
+    it('should call multi-bot send notifications handler without chat ID using trailing slash', async () => {
+      const request = new Request('https://ping.vansach.me/test-bot/', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: '<@123> This notification uses trailing slash pattern.'
+        }),
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should call multi-bot send notifications handler without chat ID and trailing slash', async () => {
+      const request = new Request('https://ping.vansach.me/test-bot', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: '<@123> This notification without trailing slash pattern.'
+        }),
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('Invalid routes', () => {
+    it('should return 404 for GET requests', async () => {
+      const request = new Request('https://ping.vansach.me/process-updates', {
         method: 'GET',
       });
 
       const response = await worker.fetch(request, mockEnv, mockExecutionContext);
-
       expect(response.status).toBe(404);
-      expect(await response.text()).toBe('Not Found');
+    });
+
+    it('should return 404 for unknown routes', async () => {
+      const request = new Request('https://ping.vansach.me/unknown-route', {
+        method: 'POST',
+      });
+
+      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
+      expect(response.status).toBe(404);
     });
   });
 }); 

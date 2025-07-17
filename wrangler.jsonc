@@ -1,0 +1,26 @@
+{
+  "name": "18xx-bot",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "routes": [
+    {
+      "pattern": "18xx-bot-test.vansach.me",
+      "custom_domain": true
+    },
+    {
+      "pattern": "ping.vansach.me",
+      "custom_domain": true
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "BOT_CONFIG",
+      "id": "32db53c51de94dbfa178eed5ac81b74e"
+    }
+  ]
+} 
