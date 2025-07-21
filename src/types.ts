@@ -5,6 +5,7 @@ export interface Env {
 export interface BotConfig {
   token: string;
   parser?: string;
+  configurationMessage?: string;
   createdAt: string;
   updatedAt: string;
 } 
