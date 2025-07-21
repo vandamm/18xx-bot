@@ -70,11 +70,10 @@ Each bot can be configured with different message parsers:
 1. Start a chat with your bot on Telegram
 2. Send `/start` to get setup instructions
 3. Copy the webhook URL provided by the bot
-4. Configure your notification source (e.g., 18xx.games):
-   - Go to your profile/settings page
-   - Set up webhook notifications
-   - Use the webhook URL from the bot
-   - Enter any text for User ID (e.g., "Hi")
+4. Configure your notification source:
+   - Go to your application's webhook/notification settings
+   - Set up webhook notifications using the provided URL
+   - Set any required User ID field to any value (e.g., "notifications")
 
 ### For Administrators
 
