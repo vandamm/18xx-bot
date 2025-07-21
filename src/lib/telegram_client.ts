@@ -1,5 +1,12 @@
 import { Message } from 'typegram';
 
+interface TelegramApiResponse<T> {
+  ok: boolean;
+  result?: T;
+  error_code?: number;
+  description?: string;
+}
+
 export class TelegramClient {
   private token: string;
   private baseUrl: string;
@@ -25,13 +32,33 @@ export class TelegramClient {
       body: JSON.stringify(body),
     });
 
-    if (!response.ok) {
-      throw new Error(`Telegram API error: ${response.status} ${response.statusText}`);
+    let result: TelegramApiResponse<Message>;
+    
+    try {
+      result = await response.json() as TelegramApiResponse<Message>;
+    } catch (parseError) {
+      throw new Error(`Telegram API error: Failed to parse response. HTTP ${response.status} ${response.statusText}`);
     }
 
-    const result = await response.json() as { ok: boolean; result: Message };
-    if (!result.ok) {
-      throw new Error('Telegram API request failed');
+    if (!response.ok || !result.ok) {
+      const errorCode = result.error_code || response.status;
+      const errorDescription = result.description || response.statusText || 'Unknown error';
+      
+      console.error({
+        message: 'Telegram API error',
+        chatId,
+        text: text.substring(0, 100) + (text.length > 100 ? '...' : ''),
+        errorCode,
+        errorDescription,
+        httpStatus: response.status,
+        parseMode: options.parseMode || 'HTML'
+      });
+      
+      throw new Error(`Telegram API error ${errorCode}: ${errorDescription}`);
+    }
+
+    if (!result.result) {
+      throw new Error('Telegram API error: Missing result in successful response');
     }
 
     return result.result;

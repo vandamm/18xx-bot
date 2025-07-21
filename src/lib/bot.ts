@@ -27,7 +27,7 @@ export class Bot {
 
   async sendMessage(chatId: number, text: string): Promise<Message> {
     return await this.client.sendMessage(chatId, text, {
-      parseMode: 'HTML',
+      parseMode: 'MarkdownV2',
     });
   }
 

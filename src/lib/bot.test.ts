@@ -55,7 +55,7 @@ describe('Bot', () => {
 
       await bot.processUpdate(startUpdate, 'https://test.com');
 
-      expect(mockSendMessage).toHaveBeenCalledWith(123, expect.stringContaining('https://test.com/send-notifications/123'));
+      expect(mockSendMessage).toHaveBeenCalledWith(123, expect.stringContaining('https://test\\.com/send\\-notifications/123'));
       expect(mockSendMessage).toHaveBeenCalledWith(123, expect.stringContaining('Webhook Notifications Setup'));
     });
 
@@ -76,7 +76,7 @@ describe('Bot', () => {
 
       await bot.processUpdate(startUpdate, 'https://example.com');
 
-      expect(mockSendMessage).toHaveBeenCalledWith(456, 'Custom setup instructions: https://example.com/send-notifications/456');
+      expect(mockSendMessage).toHaveBeenCalledWith(456, 'Custom setup instructions: https://example\\.com/send\\-notifications/456');
     });
 
     it('should not send message for non-start updates', async () => {
