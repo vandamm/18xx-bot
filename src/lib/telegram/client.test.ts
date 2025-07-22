@@ -1,4 +1,4 @@
-import { TelegramClient } from './telegram_client';
+import { TelegramClient } from './client';
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -40,7 +40,7 @@ describe('TelegramClient', () => {
           body: JSON.stringify({
             chat_id: 123,
             text: 'Test message',
-            parse_mode: 'HTML'
+            parse_mode: 'Markdown'
           })
         })
       );
@@ -50,7 +50,7 @@ describe('TelegramClient', () => {
       const mockErrorResponse = {
         ok: false,
         error_code: 400,
-        description: "Bad Request: can't parse entities: Character '.' is reserved and must be escaped with the preceding '\\'"
+        description: "Bad Request: can't parse entities: Character '_' is reserved and must be escaped with the preceding '\\'"
       };
 
       mockFetch.mockResolvedValue({
@@ -60,8 +60,8 @@ describe('TelegramClient', () => {
         json: async () => mockErrorResponse,
       } as unknown as Response);
 
-      await expect(client.sendMessage(123, 'Test message with unescaped.')).rejects.toThrow(
-        "Telegram API error 400: Bad Request: can't parse entities: Character '.' is reserved and must be escaped with the preceding '\\'"
+      await expect(client.sendMessage(123, 'Test message with _invalid_ markdown')).rejects.toThrow(
+        "Telegram API error 400: Bad Request: can't parse entities: Character '_' is reserved and must be escaped with the preceding '\\'"
       );
     });
 
@@ -129,7 +129,7 @@ describe('TelegramClient', () => {
         json: async () => mockResponse,
       } as unknown as Response);
 
-      await client.sendMessage(123, 'Test message', { parseMode: 'MarkdownV2' });
+      await client.sendMessage(123, 'Test message', { parseMode: 'HTML' });
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.telegram.org/bottest-token/sendMessage',
@@ -137,7 +137,7 @@ describe('TelegramClient', () => {
           body: JSON.stringify({
             chat_id: 123,
             text: 'Test message',
-            parse_mode: 'MarkdownV2'
+            parse_mode: 'HTML'
           })
         })
       );

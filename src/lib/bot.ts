@@ -1,7 +1,7 @@
-import { Update, Message } from 'typegram';
 import { processConfigurationMessage, DEFAULT_CONFIGURATION_MESSAGE } from './templates';
 import { MessageParser } from './message-parsers/types';
-import { TelegramClient } from './telegram_client';
+import { TelegramClient } from './telegram/client';
+import { Update, Message } from './telegram/types';
 
 export class Bot {
   private client: TelegramClient;
@@ -27,7 +27,7 @@ export class Bot {
 
   async sendMessage(chatId: number, text: string): Promise<Message> {
     return await this.client.sendMessage(chatId, text, {
-      parseMode: 'MarkdownV2',
+      parseMode: 'Markdown',
     });
   }
 
@@ -36,9 +36,8 @@ export class Bot {
   }
 }
 
-function isStartMessage(update: Update): update is Update.MessageUpdate {
-  return 'message' in update &&
-    'text' in update.message &&
-    update.message.text &&
-    update.message.text.toLowerCase() === '/start';
+function isStartMessage(update: Update): boolean {
+  return (
+    update.message?.text?.toLowerCase().trim() === '/start'
+  );
 }

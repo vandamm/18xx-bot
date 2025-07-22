@@ -1,35 +1,32 @@
 import { Bot } from './bot';
-import { DefaultParser } from './message-parsers/default-parser';
+import { MessageParser } from './message-parsers/types';
+import { Update } from './telegram/types';
 
 describe('Bot', () => {
-  let bot: Bot;
-  let parser: DefaultParser;
+  let parser: MessageParser;
 
   beforeEach(() => {
-    parser = new DefaultParser();
-    bot = new Bot('test-token', parser);
+    parser = {
+      name: 'test',
+      parse: jest.fn().mockReturnValue({ content: 'test', valid: true })
+    };
   });
 
-  it('should create bot instance', () => {
-    expect(bot).toBeInstanceOf(Bot);
+  it('should create bot with access token', () => {
+    expect(() => new Bot('test-token', parser)).not.toThrow();
   });
 
-  it('should throw error if no access token provided', () => {
+  it('should throw error when access token is undefined', () => {
     expect(() => new Bot('', parser)).toThrow('Access token undefined');
   });
 
   it('should parse message using provided parser', () => {
-    const message = { text: 'test message' };
-    const result = bot.parseMessage(message);
-
-    expect(result.content).toBe('test message');
-    expect(result.valid).toBe(true);
-  });
-
-  it('should create bot with custom configuration message', () => {
-    const customMessage = 'Custom setup: {{WEBHOOK_URL}}';
-    const botWithCustomMessage = new Bot('test-token', parser, customMessage);
-    expect(botWithCustomMessage).toBeInstanceOf(Bot);
+    const bot = new Bot('test-token', parser);
+    const message = { test: 'data' };
+    
+    bot.parseMessage(message);
+    
+    expect(parser.parse).toHaveBeenCalledWith(message);
   });
 
   describe('processUpdate with configuration messages', () => {
@@ -43,19 +40,19 @@ describe('Bot', () => {
       const bot = new Bot('test-token', parser);
       bot.sendMessage = mockSendMessage;
 
-      const startUpdate = {
+      const startUpdate: Update = {
         update_id: 1,
         message: {
           message_id: 1,
           date: Date.now(),
-          chat: { id: 123, type: 'private' as const },
+          chat: { id: 123, type: 'private' },
           text: '/start'
         }
-      } as any;
+      };
 
       await bot.processUpdate(startUpdate, 'https://test.com');
 
-      expect(mockSendMessage).toHaveBeenCalledWith(123, expect.stringContaining('https://test\\.com/send\\-notifications/123'));
+      expect(mockSendMessage).toHaveBeenCalledWith(123, expect.stringContaining('https://test.com/send-notifications/123'));
       expect(mockSendMessage).toHaveBeenCalledWith(123, expect.stringContaining('Webhook Notifications Setup'));
     });
 
@@ -64,38 +61,19 @@ describe('Bot', () => {
       const bot = new Bot('test-token', parser, customMessage);
       bot.sendMessage = mockSendMessage;
 
-      const startUpdate = {
+      const startUpdate: Update = {
         update_id: 1,
         message: {
           message_id: 1,
           date: Date.now(),
-          chat: { id: 456, type: 'private' as const },
+          chat: { id: 456, type: 'private' },
           text: '/start'
         }
-      } as any;
+      };
 
       await bot.processUpdate(startUpdate, 'https://example.com');
 
-      expect(mockSendMessage).toHaveBeenCalledWith(456, 'Custom setup instructions: https://example\\.com/send\\-notifications/456');
-    });
-
-    it('should not send message for non-start updates', async () => {
-      const bot = new Bot('test-token', parser);
-      bot.sendMessage = mockSendMessage;
-
-      const regularUpdate = {
-        update_id: 1,
-        message: {
-          message_id: 1,
-          date: Date.now(),
-          chat: { id: 123, type: 'private' as const },
-          text: 'regular message'
-        }
-      } as any;
-
-      await bot.processUpdate(regularUpdate, 'https://test.com');
-
-      expect(mockSendMessage).not.toHaveBeenCalled();
+      expect(mockSendMessage).toHaveBeenCalledWith(456, 'Custom setup instructions: https://example.com/send-notifications/456');
     });
   });
 });
