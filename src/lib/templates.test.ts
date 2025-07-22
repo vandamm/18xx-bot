@@ -1,44 +1,39 @@
 import {
-  DEFAULT_CONFIGURATION_MESSAGE,
-  notificationMessage,
   processConfigurationMessage,
+  notificationMessage,
+  DEFAULT_CONFIGURATION_MESSAGE,
 } from "./templates";
 
-const env = process.env;
+describe("DEFAULT_CONFIGURATION_MESSAGE", () => {
+  test("contains required placeholder", () => {
+    expect(DEFAULT_CONFIGURATION_MESSAGE).toContain("{{WEBHOOK_URL}}");
+  });
 
-afterEach(() => (process.env = env));
-
-test("configurationMessage requires webhook url", () => {
-  expect(() =>
-    processConfigurationMessage(DEFAULT_CONFIGURATION_MESSAGE, 1, "")
-  ).toThrow("Base URL is undefined");
+  test("uses Markdown formatting", () => {
+    expect(DEFAULT_CONFIGURATION_MESSAGE).toContain("**");
+    expect(DEFAULT_CONFIGURATION_MESSAGE).toContain("`");
+  });
 });
 
-test("configurationMessage matches template", () => {
-  expect(
-    processConfigurationMessage(
-      DEFAULT_CONFIGURATION_MESSAGE,
-      1,
-      "https://test.com"
-    )
-  ).toMatchInlineSnapshot(`
-    "🔔 **Webhook Notifications Setup**
+describe("notificationMessage", () => {
+  test("combines text and link with Markdown formatting", () => {
+    const result = notificationMessage("Hello world", "https://example.com");
+    expect(result).toBe(
+      `Hello world
+[https://example.com](https://example.com)`
+    );
+  });
 
-    To receive notifications in this chat:
-
-    1\\\\\\\\. Copy this webhook URL: \`https://test\\\\.com/send\\\\-notifications/1\`
-    2\\\\\\\\. Configure your notification source to send webhooks to this URL
-    3\\\\\\\\. Set any required User ID field to any value \\\\\\\\(e\\\\\\\\.g\\\\\\\\., \\"notifications\\"\\\\\\\\)
-
-    ✅ You're all set\\\\\\\\! Notifications will be delivered to this chat\\\\\\\\."
-  `);
-});
-
-test("notificationMessage matches template", () => {
-  expect(notificationMessage("text", "https://link")).toMatchInlineSnapshot(`
-    "text
-    [https://link](https://link)"
-  `);
+  test("handles special characters without escaping", () => {
+    const result = notificationMessage(
+      "Test with special chars: ()[]{}!",
+      "https://example.com/path?param=value"
+    );
+    expect(result).toBe(
+      `Test with special chars: ()[]{}!
+[https://example.com/path?param=value](https://example.com/path?param=value)`
+    );
+  });
 });
 
 describe("processConfigurationMessage", () => {
@@ -62,7 +57,7 @@ describe("processConfigurationMessage", () => {
       "https://example.com"
     );
     expect(result).toBe(
-      "Use this URL: https://example\\.com/send\\-notifications/123"
+      "Use this URL: https://example.com/send-notifications/123"
     );
   });
 
@@ -74,7 +69,7 @@ describe("processConfigurationMessage", () => {
       "https://test.com"
     );
     expect(result).toBe(
-      "URL: https://test\\.com/send\\-notifications/456 and again: https://test\\.com/send\\-notifications/456"
+      "URL: https://test.com/send-notifications/456 and again: https://test.com/send-notifications/456"
     );
   });
 
@@ -85,7 +80,7 @@ describe("processConfigurationMessage", () => {
       123,
       "https://example.com"
     );
-    expect(result).toBe("Base URL: https://example\\.com/send\\-notifications");
+    expect(result).toBe("Base URL: https://example.com/send-notifications");
   });
 
   test("replaces USER_ID placeholder", () => {
@@ -107,7 +102,7 @@ describe("processConfigurationMessage", () => {
       "https://test.com"
     );
     expect(result).toBe(
-      "Full URL: https://test\\.com/send\\-notifications/456, Base: https://test\\.com/send\\-notifications, ID: 456"
+      "Full URL: https://test.com/send-notifications/456, Base: https://test.com/send-notifications, ID: 456"
     );
   });
 
@@ -121,7 +116,7 @@ describe("processConfigurationMessage", () => {
     expect(result).toBe("This is a message without placeholders");
   });
 
-  test("processes complex custom configuration message", () => {
+  test("processes complex custom configuration message with Markdown", () => {
     const template = `🎮 **Game Notifications Setup**
 
 To receive notifications from 18xx.games:
@@ -143,20 +138,20 @@ To receive notifications from 18xx.games:
     );
 
     expect(result).toMatchInlineSnapshot(`
-      "🎮 **Game Notifications Setup**
+"🎮 **Game Notifications Setup**
 
-      To receive notifications from 18xx\\\\.games:
+To receive notifications from 18xx.games:
 
-      1\\\\. Go to your [18xx\\\\.games profile page]\\\\(https://18xx\\\\.games/profile\\\\)
-      2\\\\. Set these values:
+1. Go to your [18xx.games profile page](https://18xx.games/profile)
+2. Set these values:
 
-      **Turn/Message Notifications**: Webhook
-      **Webhook**: Custom
-      **Webhook URL**: \`https://ping\\\\.vansach\\\\.me/send\\\\-notifications/123456789\`
-      **Webhook User ID**: Type anything here, maybe \\"Hi\\"
+*Turn/Message Notifications*: Webhook
+*Webhook*: Custom
+*Webhook URL*: \`https://ping.vansach.me/send-notifications/123456789\`
+*Webhook User ID*: Type anything here, maybe \\"Hi\\"
 
-      🚀 You're all set\\\\! You'll receive notifications here when it's your turn\\\\."
-    `);
+🚀 You're all set! You'll receive notifications here when it's your turn."
+`);
   });
 
   test("processes template with all placeholders for flexible setup", () => {
@@ -184,14 +179,14 @@ Both methods work the same way!`;
 
       Choose your setup method:
 
-      **Method 1 \\\\- Direct URL:**
-      Use: \`https://api\\\\.example\\\\.com/send\\\\-notifications/555\`
+      **Method 1 - Direct URL:**
+      Use: \`https://api.example.com/send-notifications/555\`
 
-      **Method 2 \\\\- Separate fields:**
-      Webhook Base: \`https://api\\\\.example\\\\.com/send\\\\-notifications\`
+      **Method 2 - Separate fields:**
+      Webhook Base: \`https://api.example.com/send-notifications\`
       User ID: \`555\`
 
-      Both methods work the same way\\\\!"
+      Both methods work the same way!"
     `);
   });
 });

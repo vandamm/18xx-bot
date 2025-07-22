@@ -1,11 +1,4 @@
-import { Message } from 'typegram';
-
-interface TelegramApiResponse<T> {
-  ok: boolean;
-  result?: T;
-  error_code?: number;
-  description?: string;
-}
+import { TelegramApiResponse, Message } from './types';
 
 export class TelegramClient {
   private token: string;
@@ -21,7 +14,7 @@ export class TelegramClient {
     const body = {
       chat_id: chatId,
       text: text,
-      parse_mode: options.parseMode || 'HTML'
+      parse_mode: options.parseMode || 'Markdown'
     };
 
     const response = await fetch(url, {
@@ -51,7 +44,7 @@ export class TelegramClient {
         errorCode,
         errorDescription,
         httpStatus: response.status,
-        parseMode: options.parseMode || 'HTML'
+        parseMode: options.parseMode || 'Markdown'
       });
       
       throw new Error(`Telegram API error ${errorCode}: ${errorDescription}`);
