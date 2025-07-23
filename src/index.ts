@@ -14,11 +14,6 @@ export default {
     })
     
     if (request.method === 'POST') {
-      const legacyProcessUpdatesMatch = url.pathname === '/process-updates';
-      if (legacyProcessUpdatesMatch) {
-        return handleMultiBotProcessUpdates(request, env, LEGACY_BOT_ID);
-      }
-      
       const legacySendNotificationsMatch = url.pathname.match(/^\/send-notifications\/(.+)$/);
       if (legacySendNotificationsMatch) {
         const chatId = parseInt(legacySendNotificationsMatch[1]);

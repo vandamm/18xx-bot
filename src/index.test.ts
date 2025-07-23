@@ -52,22 +52,6 @@ describe('Cloudflare Workers Handler', () => {
     });
   });
 
-  describe('POST /process-updates', () => {
-    it('should call multi-bot handler with legacy bot ID', async () => {
-      const request = new Request('https://ping.vansach.me/process-updates', {
-        method: 'POST',
-        body: JSON.stringify({
-          update_id: 123,
-          message: { message_id: 456, date: 1234567890, chat: { id: 789 } },
-        }),
-      });
-
-      const response = await worker.fetch(request, mockEnv, mockExecutionContext);
-
-      expect(response.status).toBe(200);
-    });
-  });
-
   describe('POST /send-notifications/:chatId', () => {
     it('should call multi-bot handler with legacy bot ID', async () => {
       const request = new Request('https://ping.vansach.me/send-notifications/123456789', {
