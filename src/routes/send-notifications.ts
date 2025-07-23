@@ -36,7 +36,7 @@ async function parseRequestBody(request: Request): Promise<object> {
   }
 }
 
-export async function handleMultiBotSendNotifications(request: Request, env: Env, botId: string, chatId?: number): Promise<Response> {
+export async function handleSendNotifications(request: Request, env: Env, botId: string, chatId?: number): Promise<Response> {
   try {
     const bot = await getBotInstanceById(botId, env);
     if (!bot) {

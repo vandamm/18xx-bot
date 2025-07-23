@@ -22,6 +22,11 @@ export class Bot {
       const message = processConfigurationMessage(template, update.message.chat.id, baseUrl);
       
       await this.sendMessage(update.message.chat.id, message);
+    } else {
+      console.log({
+        message: 'Unknown message',
+        update,
+      });
     }
   }
 

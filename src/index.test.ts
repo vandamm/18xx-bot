@@ -4,18 +4,18 @@ jest.mock('./lib/bot_repository', () => ({
   getBotInstanceById: jest.fn(),
 }));
 
-jest.mock('./routes/multi-bot-process-updates', () => ({
-  handleMultiBotProcessUpdates: jest.fn(),
+jest.mock('./routes/process-updates', () => ({
+  handleProcessUpdates: jest.fn(),
 }));
 
-jest.mock('./routes/multi-bot-send-notifications', () => ({
-  handleMultiBotSendNotifications: jest.fn(),
+jest.mock('./routes/send-notifications', () => ({
+  handleSendNotifications: jest.fn(),
 }));
 
 import worker from './index';
 import { getBotInstanceById } from './lib/bot_repository';
-import { handleMultiBotProcessUpdates } from './routes/multi-bot-process-updates';
-import { handleMultiBotSendNotifications } from './routes/multi-bot-send-notifications';
+import { handleProcessUpdates } from './routes/process-updates';
+import { handleSendNotifications } from './routes/send-notifications';
 
 describe('Cloudflare Workers Handler', () => {
   let mockBot: any;
@@ -42,8 +42,8 @@ describe('Cloudflare Workers Handler', () => {
     
     mockExecutionContext = {};
 
-    (handleMultiBotProcessUpdates as jest.Mock).mockResolvedValue(new Response('OK', { status: 200 }));
-    (handleMultiBotSendNotifications as jest.Mock).mockImplementation(async (request: Request, env: Env, botId: string, chatId?: number) => {
+    (handleProcessUpdates as jest.Mock).mockResolvedValue(new Response('OK', { status: 200 }));
+    (handleSendNotifications as jest.Mock).mockImplementation(async (request: Request, env: Env, botId: string, chatId?: number) => {
       const knownBots = ['18xx.games', 'my-bot', 'test-bot'];
       if (!knownBots.includes(botId)) {
         return new Response('Not found', { status: 404 });
