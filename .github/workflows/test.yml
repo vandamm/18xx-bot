@@ -2,11 +2,11 @@ name: test
 on:
   pull_request:
 jobs:
-  test-jest:
-    name: jest
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4 # checkout the repo
+      - uses: actions/checkout@v4
       - run: npm install
       - run: npm run test:ci
       - name: Test Report
