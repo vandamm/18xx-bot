@@ -1,4 +1,4 @@
-# 18xx Bot - Cloudflare Workers Multi-Bot Platform
+# Notify Bot - Cloudflare Workers Multi-Bot Platform
 
 A Telegram bot platform that supports multiple bot instances with configurable message parsing. Each bot can receive notifications from various sources (like 18xx.games) and forward them to Telegram chats with custom message processing.
 
@@ -28,8 +28,8 @@ Each bot can be configured with different message parsers:
 
 1. **Clone and Install**
    ```bash
-   git clone <repository-url>
-   cd 18xx-bot
+   git clone https://github.com/vandamm/notify-bot.git
+   cd notify-bot
    npm install
    ```
 
