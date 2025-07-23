@@ -10,13 +10,10 @@ This application now supports multiple Telegram bots with the following routing 
 
 - **Legacy Routes** (still supported):
   - `POST /send-notifications/<chat_id>` - Send notification using legacy bot
-  - `POST /process-updates` - Process Telegram webhook for legacy bot
 
 ## Architecture
 
 Each route is implemented in a separate file under `src/routes/`:
-- `legacy-process-updates.ts` - Legacy webhook processing
-- `legacy-send-notifications.ts` - Legacy notification sending
 - `multi-bot-process-updates.ts` - Multi-bot webhook processing
 - `multi-bot-send-notifications.ts` - Multi-bot notification sending
 
