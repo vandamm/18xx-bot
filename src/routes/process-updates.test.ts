@@ -1,10 +1,10 @@
-import { handleMultiBotProcessUpdates } from './multi-bot-process-updates';
+import { handleProcessUpdates } from './process-updates';
 
 jest.mock('../lib/bot_repository');
 
 import { getBotInstanceById } from '../lib/bot_repository';
 
-describe('handleMultiBotProcessUpdates', () => {
+describe('handleProcessUpdates', () => {
   const mockGetBotInstanceById = getBotInstanceById as jest.MockedFunction<typeof getBotInstanceById>;
   
   const mockEnv = {
@@ -40,7 +40,7 @@ describe('handleMultiBotProcessUpdates', () => {
 
     mockGetBotInstanceById.mockResolvedValue(mockBot as any);
 
-    const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, '18xx.games');
+    const response = await handleProcessUpdates(mockRequest, mockEnv, '18xx.games');
 
     expect(response.status).toBe(200);
     expect(await response.text()).toBe('OK');
@@ -52,7 +52,7 @@ describe('handleMultiBotProcessUpdates', () => {
       json: jest.fn().mockRejectedValue(new Error('Test error')),
     } as any;
 
-    const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, '18xx.games');
+    const response = await handleProcessUpdates(mockRequest, mockEnv, '18xx.games');
 
     expect(response.status).toBe(500);
     expect(await response.text()).toBe('Internal server error');
@@ -66,7 +66,7 @@ describe('handleMultiBotProcessUpdates', () => {
 
     mockGetBotInstanceById.mockRejectedValue(new Error('Bot configuration not found for ID: nonexistent'));
 
-    const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, 'nonexistent');
+    const response = await handleProcessUpdates(mockRequest, mockEnv, 'nonexistent');
 
     expect(response.status).toBe(500);
     expect(await response.text()).toBe('Internal server error');
@@ -80,7 +80,7 @@ describe('handleMultiBotProcessUpdates', () => {
 
     mockGetBotInstanceById.mockRejectedValue(new Error('Bot token not found for ID: invalid'));
 
-    const response = await handleMultiBotProcessUpdates(mockRequest, mockEnv, 'invalid');
+    const response = await handleProcessUpdates(mockRequest, mockEnv, 'invalid');
 
     expect(response.status).toBe(500);
     expect(await response.text()).toBe('Internal server error');
@@ -108,7 +108,7 @@ describe('handleMultiBotProcessUpdates', () => {
 
     mockGetBotInstanceById.mockResolvedValue(mockBot as any);
 
-    await handleMultiBotProcessUpdates(mockRequest, mockEnv, '18xx.games');
+    await handleProcessUpdates(mockRequest, mockEnv, '18xx.games');
 
     expect(mockBot.processUpdate).toHaveBeenCalledWith(
       mockUpdate,

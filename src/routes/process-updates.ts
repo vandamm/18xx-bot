@@ -2,7 +2,7 @@ import { Update } from 'typegram';
 import { getBotInstanceById } from '../lib/bot_repository';
 import { Env } from '../types';
 
-export async function handleMultiBotProcessUpdates(request: Request, env: Env, botId: string): Promise<Response> {
+export async function handleProcessUpdates(request: Request, env: Env, botId: string): Promise<Response> {
   try {
     const bot = await getBotInstanceById(botId, env);
     if (!bot) {
