@@ -24,8 +24,8 @@ export class Bot {
       await this.sendMessage(update.message.chat.id, message);
     } else {
       console.warn({
-        message: 'Unknown message',
-        update,
+        message: 'Unknown update type',
+        update: JSON.stringify(update, null, 2),
       });
     }
   }
@@ -42,7 +42,5 @@ export class Bot {
 }
 
 function isStartMessage(update: Update): boolean {
-  return (
-    update.message?.text?.toLowerCase().trim() === '/start'
-  );
+  return update.message?.text?.toLowerCase().trim().startsWith('/start');
 }
