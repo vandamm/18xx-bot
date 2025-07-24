@@ -23,7 +23,7 @@ export class Bot {
       
       await this.sendMessage(update.message.chat.id, message);
     } else {
-      console.log({
+      console.warn({
         message: 'Unknown message',
         update,
       });
